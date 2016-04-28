@@ -14,7 +14,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import sys
-
+import json
 import Book
 import User
 
@@ -92,7 +92,7 @@ def parseUser(url):
 
     link = baseurl + ratings[0].get("href") + "&per_page=infinite"
     print(link)
-    user = User.User(name[0].strip)
+    user = User.User(name[0].strip())
     user = parseReviews(link, user)
     users.append(user)
 
@@ -145,6 +145,13 @@ if __name__ == '__main__':
     #parseBook("https://www.goodreads.com/book/show/42615.War_of_the_Rats")
     parseUser("https://www.goodreads.com/user/show/25962177-robin")
 
-    print(len(users))
-    print(len(books))
+    with open('data/users.json', 'w') as userfile:
+        userJson = users[0].getJson()
+        userfile.write(userJson)
+
+    with open('data/books.json', 'w') as bookfile:
+        bookfile.write("[")
+        for book in books:
+            bookfile.write(str(book.getJson()) + ",\n")
+        bookfile.write("]\n")
     #parseReviews("https://www.goodreads.com/review/list/25962177-robin?utf8=%E2%9C%93&sort=rating&view=reviews&per_page=infinite")

@@ -8,6 +8,19 @@ class User:
 
     def __str__(self):
         retStr = str(self.name) + "\n"
-        for book, score in self.rated.iteritems():
+        for book, score in self.rated.items():
             retStr += "\t " + str(book) + " " + score + "\n"
         return retStr
+
+    def getJson(self):
+        retString = "{\"name\": " + str(self.name) + ",\n" + "\"ratings\": "
+        # Print the array of mappings.
+        retString += "["
+        for isbn, score in self.rated.items():
+            retString += "{"
+            retString += "\"book_isbn\": " + isbn + ",\n"
+            retString += "\"score\": " + str(score) + ",\n"
+            retString += "},\n"
+        retString += "]\n"
+        retString += "}"
+        return retString

@@ -18,6 +18,6 @@ class Book:
     """
     Prints the book into json format, so it camn be used in the IR system.
     """
-    def printJson(self):
+    def getJson(self):
         #TODO
-        print("JSON")
+        return "{\"title\": " + self.title + ",\n" + "\"isbn\": " + self.isbn + ",\n" + "\"author\": " + self.author + ",\n" + "\"text\": " + self.abstract + "}"
