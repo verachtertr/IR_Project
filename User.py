@@ -13,12 +13,12 @@ class User:
         return retStr
 
     def getJson(self):
-        retString = "{\"name\": " + str(self.name) + ",\n" + "\"ratings\": "
+        retString = "{\"name\": \"" + str(self.name) + "\",\n" + "\"ratings\": "
         # Print the array of mappings.
         retString += "["
         for isbn, score in self.rated.items():
             retString += "{"
-            retString += "\"book_isbn\": " + isbn + ",\n"
+            retString += "\"book_isbn\": \"" + isbn + "\",\n"
             retString += "\"score\": " + str(score) + ",\n"
             retString += "},\n"
         retString += "]\n"

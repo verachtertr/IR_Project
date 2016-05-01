@@ -117,7 +117,7 @@ def parseReviews(url, user, depth, maxdepth):
     driver.get(url)
     for i in range(1,20):      # Scroll down 100 times, this should be enough
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(0.5)
+        time.sleep(1)
     html_source = driver.page_source
     data = html_source.encode('utf-8')
 
@@ -161,8 +161,9 @@ if __name__ == '__main__':
         parseUser("https://www.goodreads.com/user/show/25962177-robin",0,1)
         #parseUser("https://www.goodreads.com/user/show/94602-kelly",0,0)
     except:
-        # An error occured, print users and books, so we have something.
+        # An error occured, print users and books, so we have something
         print("An error occured, writing accumulated books and users to file")
+    #    print(sys.exc_info()[0])
     print(len(users))
     with open('data/users.json', 'w') as userfile:
         userfile.write("[")
