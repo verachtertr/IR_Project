@@ -18,3 +18,5 @@ hs_err_pid*
 # log files
 *.log
 
+/IR_Project/nbproject/private/
+/IR_Project/build/
