@@ -172,6 +172,7 @@ if __name__ == '__main__':
             userfile.write(userJson)
             userfile.write(",\n")
         userfile.write("]")
+    print(len(books))
     with open('data/books.json', 'w') as bookfile:
         bookfile.write("[")
         for book in books:
