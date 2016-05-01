@@ -22,6 +22,7 @@ import time, re
 
 baseurl = "https://www.goodreads.com"
 
+# GLOBAL VARIABLES, so it is not necessary to pass them along everytime
 users = []
 books = []
 
@@ -32,7 +33,7 @@ def extractText(node):
             [node.tail])
     return ''.join(filter(None, parts))
 
-def parseBook(url):
+def parseBook(url, depth, maxdepth):
     page = requests.get(url)
     tree = html.fromstring(page.content)
 
@@ -65,8 +66,6 @@ def parseBook(url):
 
     users = tree.xpath('//a[@class="user"]')
 
-    for i in users:
-        print(i.get("href"))
 
     # Create book object, and push it into the books vector.
     book = Book.Book(isbnr, title[0].text.strip(),author[0].text.strip(), abstract )
@@ -76,41 +75,49 @@ def parseBook(url):
     if not book in books:
         books.append(book)
 
+    for i in users:
+        print(i.get("href"))
+        parseUser(baseurl+i.get("href"), depth+1, maxdepth) # Increase depth with one, because it id going to the next level.
+
     return isbnr
 
-def parseUser(url):
+def parseUser(url, depth, maxdepth):
+    print(depth)
+    if depth > maxdepth:
+        return
     print(url)
     page = requests.get(url)
     tree = html.fromstring(page.content)
 
     name = tree.xpath('//h1[@class="userProfileName"]/text()')
+    if len(name) == 0:
+        return  # User has no name, or user does not exist any more.
     print(name[0].strip())
 
-    ratings = tree.xpath('//div[@class="leftContainer"]/div[@class="leftAlignedImage"]/a[1]')
+    ratings = tree.xpath('//div[@class="leftContainer"]/div[@class="leftAlignedImage"]/a[not(@class="userPagePhoto")]')
     print(len(ratings))
     print(ratings[0].get("href"))
 
     link = baseurl + ratings[0].get("href") + "&per_page=infinite"
     print(link)
     user = User.User(name[0].strip())
-    user = parseReviews(link, user)
+    user = parseReviews(link, user, depth, maxdepth) # just pass depth along
     users.append(user)
 
 """
 parses users' reviews, and stores the isbn and score in the rating map.
 The user parameter is the user whose reviews these are.
 """
-def parseReviews(url, user):
+def parseReviews(url, user, depth, maxdepth):
     page = requests.get(url)
     tree = html.fromstring(page.content)
 
     # scroll down
     driver = webdriver.Firefox()
-    delay = 3
     driver.get(url)
     for i in range(1,20):      # Scroll down 100 times, this should be enough
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(2)
+        time.sleep(1)
     html_source = driver.page_source
     data = html_source.encode('utf-8')
 
@@ -121,37 +128,55 @@ def parseReviews(url, user):
         books.append(i.get_attribute("href"))
 
     stars =  driver.find_elements_by_xpath('//tbody[@id="booksBody"]/tr/td[@class="field rating"]/div[@class="value"]/span')
+    individual_stars =  driver.find_elements_by_xpath('//tbody[@id="booksBody"]/tr/td[@class="field rating"]/div[@class="value"]/span/span')
     print(len(stars))
+    print(len(individual_stars))
     scores = []
-    for i in stars:
+
+
+    for i in range(0,len(stars)):
         score = 0
-        for j in i.find_elements_by_xpath('.//*'):
-            if j.get_attribute("class") == "staticStar p10":
+        for j in range(0,5):
+            if individual_stars[(i*5)+j].get_attribute("class") == "staticStar p10":
                 score+=1
         scores.append(score)
         print(score)
 
     driver.quit()
 
-    for i in range(1,len(books)):
+    for i in range(0,len(books)):
         print(books[i])
-        bookIsbn = parseBook(books[i])
-        print(bookIsbn)
-        if scores[i] > 0 and bookIsbn != None:
-            user.addRating(bookIsbn, scores[i])
+        if books[0] == None:
+            continue
+        else:
+            bookIsbn = parseBook(books[i], depth, maxdepth)
+            print(bookIsbn)
+            if scores[i] > 0 and bookIsbn != None:
+                user.addRating(bookIsbn, scores[i])
     return user
 
 if __name__ == '__main__':
-    #parseBook("https://www.goodreads.com/book/show/42615.War_of_the_Rats")
-    parseUser("https://www.goodreads.com/user/show/25962177-robin")
-
+    try:
+        #parseBook("https://www.goodreads.com/book/show/42615.War_of_the_Rats")
+        parseUser("https://www.goodreads.com/user/show/25962177-robin",0,1)
+        #parseUser("https://www.goodreads.com/user/show/94602-kelly",0,0)
+    except:
+        # An error occured, print users and books, so we have something
+        print("An error occured, writing accumulated books and users to file")
+    #    print(sys.exc_info()[0])
+    print(len(users))
     with open('data/users.json', 'w') as userfile:
-        userJson = users[0].getJson()
-        userfile.write(userJson)
-
+        userfile.write("[")
+        for user in users:
+            userJson = user.getJson()
+            userfile.write(userJson)
+            userfile.write(",\n")
+        userfile.write("]")
+    print(len(books))
     with open('data/books.json', 'w') as bookfile:
         bookfile.write("[")
         for book in books:
             bookfile.write(str(book.getJson()) + ",\n")
         bookfile.write("]\n")
+
     #parseReviews("https://www.goodreads.com/review/list/25962177-robin?utf8=%E2%9C%93&sort=rating&view=reviews&per_page=infinite")
