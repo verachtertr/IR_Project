@@ -31,8 +31,12 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 
 import org.apache.lucene.codecs.TermVectorsFormat;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.Fields;
+import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
 
 
 import org.json.simple.*;
@@ -52,7 +56,7 @@ public class IRProject {
     public static void main(String[] args) {
         
         try {
-            // inspired by: http://www.lucenetutorial.com/lucene-in-5-minutes.html
+            //(some of this inspired by: http://www.lucenetutorial.com/lucene-in-5-minutes.html)
             
             StandardAnalyzer analyzer = new StandardAnalyzer();
             Directory index = new RAMDirectory();
@@ -64,10 +68,31 @@ public class IRProject {
             
             w.close();
             
+            // Calculate tf/idf weights
+            IndexReader reader = DirectoryReader.open(index);
             
+            for (int i = 0; i < reader.maxDoc(); i++) {
+                Terms vector = reader.getTermVector(i, "text");
+            
+                TermsEnum it = vector.iterator();
+                
+                while (it.next() != null) {
+                    Term t = new Term("text", it.term().utf8ToString());
+                
+                    Long tf = it.totalTermFreq();
+                    float idf = (float)1 / (float)reader.totalTermFreq(t);
+                
+                    float tfIdfWeight = tf * idf;
+                    
+                    System.out.println(it.term().utf8ToString());
+                    System.out.println(tfIdfWeight);
+                }
+            }
+     
         } catch (IOException ex) {
             Logger.getLogger(IRProject.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
     
     private static void indexFromJSON(IndexWriter w, String filename) {
@@ -102,11 +127,22 @@ public class IRProject {
     }
     
     private static void addDoc(IndexWriter w, String title, String isbn, String author, String text) throws IOException {
+        
         Document doc = new Document();
         doc.add(new TextField("title", title, Field.Store.YES));
         doc.add(new StringField("isbn", isbn, Field.Store.YES));
-        doc.add(new TextField("author", title, Field.Store.YES));
-        doc.add(new TextField("text", title, Field.Store.YES));
+        doc.add(new TextField("author", author, Field.Store.YES));
+        
+        FieldType type = new FieldType();
+        type.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS);
+        type.setStored(true);
+        type.setStoreTermVectors(true);
+        type.setTokenized(true);
+        type.setStoreTermVectorOffsets(true);
+        
+        Field field = new Field("text", text, type);
+        
+        doc.add(field);
         
         w.addDocument(doc);
     }
