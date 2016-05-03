@@ -53,7 +53,7 @@ public class IRProject {
             
             IndexWriter w = new IndexWriter(index, config);
             
-            indexFromJSON(w, "/home/elise/workspace/IR_Project/IR_Project/resources/books_test.json");
+            indexFromJSON(w, "./resources/books_test.json");
             
             w.close();
             
