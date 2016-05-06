@@ -54,13 +54,13 @@ public class IRProject {
         try {
             //(some of this inspired by: http://www.lucenetutorial.com/lucene-in-5-minutes.html)
             
-            Analyzer analyzer = new EnglishAnalyzer();
+            Analyzer analyzer = new EnglishAnalyzer();  // Use EnglishAnalyzer, so that Lucene auto stems the tokens.
             Directory index = new RAMDirectory();
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
             
             IndexWriter w = new IndexWriter(index, config);
             
-            indexFromJSON(w, "./resources/books_test.json");
+            indexFromJSON(w, "./resources/books.json");  // Start the indexing process, the results will be in the index variable.
             
             w.close();
             
@@ -85,7 +85,7 @@ public class IRProject {
                 }
             }
             
-            String querystr = "";
+            String querystr = "Wild";
             Query q = new QueryParser("text", analyzer).parse(querystr);
      
             int hitsPerPage = 10;

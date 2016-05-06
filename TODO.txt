@@ -1,0 +1,8 @@
+Some poinnts that we need to do for the project:
+
+- Add dimensionality reduction (SVD) to make reccomendation better
+
+- Add comparison between docs.
+	-> Locality Sensitive Hashing, improving performance.
+
+
