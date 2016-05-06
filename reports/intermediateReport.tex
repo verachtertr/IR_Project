@@ -7,7 +7,7 @@
 \usepackage{fancyhdr} % Custom headers and footers
 \pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
 \fancyhead{} % No page header - if you want one, create it in the same way as the footers below
-\fancyfoot[L]{Data Mining: Report I} % Empty left footer
+\fancyfoot[L]{Information Retrieval: Intermediate Report} % Empty left footer
 \fancyfoot[C]{} % Empty center footer
 \fancyfoot[R]{\thepage} % Page numbering for right footer
 \renewcommand{\headrulewidth}{0pt} % Remove header underlines
@@ -28,11 +28,11 @@
 \section{Progress}
 \subsection{Data set}
 We had some problems with the datasets we specified in the project proposal. The first dataset (Jester) had no texts of the jokes, so it was impossible to use.\\
-We still had the books dataset, which we would intersect with the data from Gutenberg. However the Gutenberg download did only contain text and titles, no ISBN numbers which we would use to intersect the datasets. So we had no data, we decided, rather than try to fix the Gutenberg dataset, that we would write a simple scraper to get information from Goodreads. This is a sort of social network for books. It contains a lot of books, with reviews and ratings of thousands of users. The parser is written in python, and has several flaws, most importantly, it is extremely slow, takes about 1h30 to parse 5 users and their books (100-300). The second problem is that after at most 1h30 the connection is refused by Goodreads. So the data we have is about 6 users. But we do have about 3000 books and their abstracts, which is a decent amount. It also has the advantage that Robin is one of the users in the dataset, so when we do recommendations he can judge the precision. Of this big dataset we use about 20 books to test the system.
+We still had the books dataset, which we would intersect with the data from Gutenberg. However the Gutenberg download did only contain text and titles, no ISBN numbers which we would use to intersect the datasets. So we had no data, we decided, rather than try to fix the Gutenberg dataset, that we would write a simple scraper to get information from Goodreads. This is a sort of social network for books. It contains a lot of books, with reviews and ratings of thousands of users. The parser is written in python, and has several flaws, most importantly, it is extremely slow, takes about 1h30 to parse 5 users and their books (100-300). The second problem is that after at most 1h30 the connection is refused by Goodreads. So the data we have is about 6 users. But we do have about 3000 books and their abstracts, which is a decent amount. It also has the advantage that Robin and Elise are both users in the dataset, so when we do recommendations they can judge the precision. Of this big dataset we use about 20 books to test the system.
 
 \subsection{Tokenization and indexing}
 When we had the dataset, we started on the basis of the project, namely tokenizing the data and creating an index. For this we used Lucene. 
-%TODO @Elise vul een beetje aan over de indexing etc.
+Since we want to use a vector space model to judge the closeness of books to books that a user has liked, we stored term-vectors for each document during the indexing process. From these term vectors, we can easily build vectors with tf-idf weights, which we can then use to judge the 'closeness' of documents to a certain query (which, in our case, will be a book or a set of books that the user has liked).\\ 
 Next we used the query analyzer from Lucene to test the index, and make sure that stemming was done.
 
 \section{Functionality to be added}
