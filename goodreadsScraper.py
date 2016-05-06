@@ -158,7 +158,9 @@ def parseReviews(url, user, depth, maxdepth):
 if __name__ == '__main__':
     try:
         #parseBook("https://www.goodreads.com/book/show/42615.War_of_the_Rats")
-        parseUser("https://www.goodreads.com/user/show/25962177-robin",0,1)
+        parseUser("https://www.goodreads.com/user/show/25962177-robin",0,0)	# parse Robin
+        parseUser("https://www.goodreads.com/user/show/23496067-elise-kuylen",0,0) # parse Elise
+
         #parseUser("https://www.goodreads.com/user/show/94602-kelly",0,0)
     except:
         # An error occured, print users and books, so we have something
