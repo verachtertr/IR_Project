@@ -5,14 +5,16 @@
  */
 package ir.project;
 
+import Jama.Matrix;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -39,6 +41,8 @@ import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
 
 
+
+
 /**
  *
  * @author elise
@@ -60,16 +64,48 @@ public class IRProject {
             
             IndexWriter w = new IndexWriter(index, config);
             
-            indexFromJSON(w, "./resources/books.json");  // Start the indexing process, the results will be in the index variable.
+            indexFromJSON(w, "./resources/books_RE.json");  // Start the indexing process, the results will be in the index variable.
             
             w.close();
             
             // Calculate tf/idf weights
             IndexReader reader = DirectoryReader.open(index);
+            // Create the matrix for storing the items.
+            //double[][] array;
+            //array = new double[(int)reader.getTermVector(0, "text").size()][reader.maxDoc()];
+            //Matrix scoreMatrix = new Matrix(array);
+            Map<String, Integer>termMap = new HashMap<>();  // Map used to identifie position in matrix for 
+            Integer count = 0;
             
+            // setup the termMap.
             for (int i = 0; i < reader.maxDoc(); i++) {
                 Terms vector = reader.getTermVector(i, "text");
-            
+                if (vector == null) {
+                    System.out.println("Vector is null");
+                    continue;
+                }
+                TermsEnum it = vector.iterator();
+                
+                while (it.next() != null) {
+                    Term t = new Term("text", it.term().utf8ToString());
+                
+                    if (!termMap.containsKey(it.term().utf8ToString())) {
+                        termMap.put(it.term().utf8ToString(), count);
+                        count += 1;
+                         
+                    }
+                }
+            }
+
+            // construct the term matrix.
+            float[][] termMatrix;
+            termMatrix = new float[count][reader.maxDoc()];
+            for (int i = 0; i < reader.maxDoc(); i++) {
+                Terms vector = reader.getTermVector(i, "text");
+                if (vector == null) {
+                    System.out.println("Vector is null");
+                    continue;
+                }
                 TermsEnum it = vector.iterator();
                 
                 while (it.next() != null) {
@@ -80,12 +116,15 @@ public class IRProject {
                 
                     float tfIdfWeight = tf * idf;
                     
-                    System.out.println(it.term().utf8ToString());
-                    System.out.println(tfIdfWeight);
+                    //System.out.println(it.term().utf8ToString());
+                    //System.out.println(tfIdfWeight);
+                    termMatrix[termMap.get(it.term().utf8ToString())][i] = tfIdfWeight;
                 }
-            }
+            }            
             
-            String querystr = "Wild";
+            // TODO -> Do SVD
+            
+            String querystr = "Desperate Adolf Hitler orders the impossible: kidnap or kill Winston Churchill. A disgraced war hero receives the suicidal mission for a commando squad. In a quiet seaside village, a beautiful widow and a cultured IRA assassin set the groundwork for the ultimate act of treachery. On 6 November 1943, Berlin gets the coded message \\\"The Eagle has landed\\\".";
             Query q = new QueryParser("text", analyzer).parse(querystr);
      
             int hitsPerPage = 10;
