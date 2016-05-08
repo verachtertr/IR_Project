@@ -6,6 +6,7 @@
 package ir.project;
 
 import Jama.Matrix;
+import Jama.SingularValueDecomposition;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -98,8 +99,8 @@ public class IRProject {
             }
 
             // construct the term matrix.
-            float[][] termMatrix;
-            termMatrix = new float[count][reader.maxDoc()];
+            double[][] termMatrix;
+            termMatrix = new double[count][reader.maxDoc()];
             for (int i = 0; i < reader.maxDoc(); i++) {
                 Terms vector = reader.getTermVector(i, "text");
                 if (vector == null) {
@@ -122,7 +123,25 @@ public class IRProject {
                 }
             }            
             
-            // TODO -> Do SVD
+            // Lower the dimensionality, by using SVD
+            Matrix frequencyMatrix = new Matrix(termMatrix);
+            SingularValueDecomposition svdComput = frequencyMatrix.svd();
+            
+            Matrix U = svdComput.getU();
+            Matrix S = svdComput.getS();
+            Matrix V = svdComput.getV();
+            
+            // TODO Pick a good number for max dimensions.
+            int maxDimension = 8;
+            Matrix reduceDimensionality = new Matrix(count, reader.maxDoc());
+            for (int i=0; i<maxDimension;i++) {
+                reduceDimensionality.set(i, i, 1);
+            }
+            
+            
+            Matrix newFrequencyMatrix = U.times(S).times(V.transpose());
+            
+            // TODO use new matrix to get cosine similarity.
             
             String querystr = "Desperate Adolf Hitler orders the impossible: kidnap or kill Winston Churchill. A disgraced war hero receives the suicidal mission for a commando squad. In a quiet seaside village, a beautiful widow and a cultured IRA assassin set the groundwork for the ultimate act of treachery. On 6 November 1943, Berlin gets the coded message \\\"The Eagle has landed\\\".";
             Query q = new QueryParser("text", analyzer).parse(querystr);
