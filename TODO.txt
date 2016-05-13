@@ -1,8 +1,35 @@
-Some poinnts that we need to do for the project:
+- Data:
+	Need better data:
+		* Only keep alphabetical characters
+		* strip too short texts (because they provide little information)
+		* Add reviews as extra text (Optional)
 
-- Add dimensionality reduction (SVD) to make reccomendation better
+	Find a way to exclude books from the search space. 
+		This avoids having to remove them from the top K results, and losing some information there.
+		-> Can be done by subtracting a matrix from the term matrix.
 
-- Add comparison between docs.
-	-> Locality Sensitive Hashing, improving performance.
+	Use a fake user on Goodreads with specific genre preference
+		-> Used by leaving out some  books from the user, and then run our algo and see that we find them back.
 
+- Evaluation:
+	Compare the 2 possible ways of doing queries
+		* 1 query for each book per user
+			-> Less costly when a new book is read.
+		* Combine text of al books as a single query
+			-> Might get more general features
+	
+	Research Content based evaluation
 
+- LSI: Dimensionality reduction
+	-> Probably most useful improvement
+
+- LSH
+	-> Improves performance for high dimensionality
+	-> Not as useful if we use LSI, so probably don't do it
+
+PLANNING
+Robin 	-> Start on Data preparation
+		-> Research LSI 
+
+Elise	-> Start on querying on the test data
+		-> Do some evaluation
