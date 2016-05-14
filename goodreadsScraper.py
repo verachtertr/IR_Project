@@ -64,11 +64,22 @@ def parseBook(url, depth, maxdepth):
     abstract = abstract.strip()
     print(abstract)
 
+    abstract = re.sub('[^a-zA-Z ]+', '', abstract)
+    if len(abstract) < 100:
+        # Too short a text -> skip book
+        return None
+
+    t = re.sub('[^a-zA-Z ]+', '', title[0].text)
+    a = re.sub('[^a-zA-Z ]+', '', author[0].text)
+
+    if len(t) < 2:
+        # Title is probably useless -> skip book.
+        return None
     users = tree.xpath('//a[@class="user"]')
 
-
+    
     # Create book object, and push it into the books vector.
-    book = Book.Book(isbnr, title[0].text.strip(),author[0].text.strip(), abstract )
+    book = Book.Book(isbnr, t.strip(),a.strip(), abstract )
 
     print(book)
 
@@ -155,11 +166,21 @@ def parseReviews(url, user, depth, maxdepth):
                 user.addRating(bookIsbn, scores[i])
     return user
 
+
+def readBooks(filename):
+    with open(filename, 'r') as bookFile:
+        data = json.load(bookFile)
+        for book in data:
+            b = Book.Book(book["isbn"], book["title"], book["author"], book["text"])
+            books.append(b)
+
+
 if __name__ == '__main__':
+    readBooks('data/books.json')
     try:
         #parseBook("https://www.goodreads.com/book/show/42615.War_of_the_Rats")
-        parseUser("https://www.goodreads.com/user/show/25962177-robin",0,0)	# parse Robin
-        parseUser("https://www.goodreads.com/user/show/23496067-elise-kuylen",0,0) # parse Elise
+        #parseUser("https://www.goodreads.com/user/show/25962177-robin",0,1)	# parse Robin
+        parseUser("https://www.goodreads.com/user/show/23496067-elise-kuylen",0,1) # parse Elise
 
         #parseUser("https://www.goodreads.com/user/show/94602-kelly",0,0)
     except:
@@ -177,8 +198,13 @@ if __name__ == '__main__':
     print(len(books))
     with open('data/books.json', 'w') as bookfile:
         bookfile.write("[")
+        initial = True
         for book in books:
-            bookfile.write(str(book.getJson()) + ",\n")
+            if initial:
+                bookfile.write(str(book.getJson()))
+                initial = False
+            else:
+                bookfile.write(",\n" + str(book.getJson()))
         bookfile.write("]\n")
 
     #parseReviews("https://www.goodreads.com/review/list/25962177-robin?utf8=%E2%9C%93&sort=rating&view=reviews&per_page=infinite")
