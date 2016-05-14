@@ -56,70 +56,21 @@ public class IRProject {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+
+        // Index some books
+        Indexer indexer = new Indexer();
+        indexer.index("./resources/books_RE.json");
+        Directory index = indexer.getIndex();
+            
+        // Construct matrix with tf-idf vectors of our books.
+        TFIDFMatrix termMatrix = new TFIDFMatrix(index);
         
-        try {
-
-            // Index some books
-            Indexer indexer = new Indexer();
-            indexer.index("./resources/books_RE.json");
-            Directory index = indexer.getIndex();
-            
-            // Calculate tf/idf weights
-            IndexReader reader = DirectoryReader.open(index);
-            // Create the matrix for storing the items.
-            //double[][] array;
-            //array = new double[(int)reader.getTermVector(0, "text").size()][reader.maxDoc()];
-            //Matrix scoreMatrix = new Matrix(array);
-            Map<String, Integer>termMap = new HashMap<>();  // Map used to identifie position in matrix for 
-            Integer count = 0;
-            
-            // setup the termMap.
-            for (int i = 0; i < reader.maxDoc(); i++) {
-                Terms vector = reader.getTermVector(i, "text");
-                if (vector == null) {
-                    System.out.println("Vector is null");
-                    continue;
-                }
-                TermsEnum it = vector.iterator();
-                
-                while (it.next() != null) {
-                    Term t = new Term("text", it.term().utf8ToString());
-                
-                    if (!termMap.containsKey(it.term().utf8ToString())) {
-                        termMap.put(it.term().utf8ToString(), count);
-                        count += 1;
-                         
-                    }
-                }
-            }
-
-            // construct the term matrix.
-            double[][] termMatrix;
-            termMatrix = new double[count][reader.maxDoc()];
-            for (int i = 0; i < reader.maxDoc(); i++) {
-                Terms vector = reader.getTermVector(i, "text");
-                if (vector == null) {
-                    System.out.println("Vector is null");
-                    continue;
-                }
-                TermsEnum it = vector.iterator();
-                
-                while (it.next() != null) {
-                    Term t = new Term("text", it.term().utf8ToString());
-                
-                    Long tf = it.totalTermFreq();
-                    float idf = (float)1 / (float)reader.totalTermFreq(t);
-                
-                    float tfIdfWeight = tf * idf;
-                    
-                    //System.out.println(it.term().utf8ToString());
-                    //System.out.println(tfIdfWeight);
-                    termMatrix[termMap.get(it.term().utf8ToString())][i] = tfIdfWeight;
-                }
-            }            
+        for(int i = 0; i < termMatrix.getNumDocs(); i++) {
+            termMatrix.testCosineSimilarity(2, i);
+        }
             
             // Lower the dimensionality, by using SVD
-            Matrix frequencyMatrix = new Matrix(termMatrix);
+            /*Matrix frequencyMatrix = new Matrix(termMatrix);
             SingularValueDecomposition svdComput = frequencyMatrix.svd();
             
             Matrix U = svdComput.getU();
@@ -130,15 +81,15 @@ public class IRProject {
             int maxDimension = 8;
             Matrix reduceDimensionality = new Matrix(count, reader.maxDoc());
             for (int i=0; i<maxDimension;i++) {
-                reduceDimensionality.set(i, i, 1);
-            }
+            reduceDimensionality.set(i, i, 1);
+            }*/
             
             
-            Matrix newFrequencyMatrix = U.times(S).times(V.transpose());
+            //Matrix newFrequencyMatrix = U.times(S).times(V.transpose());
             
             // TODO use new matrix to get cosine similarity.
             //TFIDFSimilarity sim = new TFIDFSimilarity();
-            Analyzer analyzer = new EnglishAnalyzer();  // Use EnglishAnalyzer, so that Lucene auto stems the tokens.
+            /*Analyzer analyzer = new EnglishAnalyzer();  // Use EnglishAnalyzer, so that Lucene auto stems the tokens.
             
             String querystr = "Desperate Adolf Hitler orders the impossible: kidnap or kill Winston Churchill. A disgraced war hero receives the suicidal mission for a commando squad. In a quiet seaside village, a beautiful widow and a cultured IRA assassin set the groundwork for the ultimate act of treachery. On 6 November 1943, Berlin gets the coded message \\\"The Eagle has landed\\\".";
             Query q = new QueryParser("text", analyzer).parse(querystr);
@@ -150,13 +101,14 @@ public class IRProject {
             
             System.out.println("Found " + hits.length + " hits.");
             for(int i=0;i<hits.length;++i) {
-                int docId = hits[i].doc;
-                Document d = searcher.doc(docId);
-                System.out.println((i + 1) + ". " + d.get("isbn") + "\t" + d.get("title"));
-            }
-        } catch (IOException | ParseException ex) {
+            int docId = hits[i].doc;
+            Document d = searcher.doc(docId);
+            System.out.println((i + 1) + ". " + d.get("isbn") + "\t" + d.get("title"));
+            }*/
+            /*} catch (IOException | ParseException ex) {
             Logger.getLogger(IRProject.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            }*/
 
     }
+
 }
