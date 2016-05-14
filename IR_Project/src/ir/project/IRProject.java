@@ -37,6 +37,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.similarities.TFIDFSimilarity;
 
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
@@ -57,17 +58,11 @@ public class IRProject {
     public static void main(String[] args) {
         
         try {
-            //(some of this inspired by: http://www.lucenetutorial.com/lucene-in-5-minutes.html)
-            
-            Analyzer analyzer = new EnglishAnalyzer();  // Use EnglishAnalyzer, so that Lucene auto stems the tokens.
-            Directory index = new RAMDirectory();
-            IndexWriterConfig config = new IndexWriterConfig(analyzer);
-            
-            IndexWriter w = new IndexWriter(index, config);
-            
-            indexFromJSON(w, "./resources/books_RE.json");  // Start the indexing process, the results will be in the index variable.
-            
-            w.close();
+
+            // Index some books
+            Indexer indexer = new Indexer();
+            indexer.index("./resources/books_RE.json");
+            Directory index = indexer.getIndex();
             
             // Calculate tf/idf weights
             IndexReader reader = DirectoryReader.open(index);
@@ -142,6 +137,8 @@ public class IRProject {
             Matrix newFrequencyMatrix = U.times(S).times(V.transpose());
             
             // TODO use new matrix to get cosine similarity.
+            //TFIDFSimilarity sim = new TFIDFSimilarity();
+            Analyzer analyzer = new EnglishAnalyzer();  // Use EnglishAnalyzer, so that Lucene auto stems the tokens.
             
             String querystr = "Desperate Adolf Hitler orders the impossible: kidnap or kill Winston Churchill. A disgraced war hero receives the suicidal mission for a commando squad. In a quiet seaside village, a beautiful widow and a cultured IRA assassin set the groundwork for the ultimate act of treachery. On 6 November 1943, Berlin gets the coded message \\\"The Eagle has landed\\\".";
             Query q = new QueryParser("text", analyzer).parse(querystr);
@@ -162,57 +159,4 @@ public class IRProject {
         }
 
     }
-    
-    private static void indexFromJSON(IndexWriter w, String filename) {
-        
-        JSONParser parser = new JSONParser();
-        
-        try {
-            
-            Object obj = parser.parse(new FileReader(filename));
-            
-            JSONArray array = (JSONArray)obj;
-            
-            Iterator<JSONObject> iterator = array.iterator();
-            
-            while(iterator.hasNext()) 
-            {
-                JSONObject doc = iterator.next();
-                String title = (String)doc.get("title");
-                String isbn = (String)doc.get("isbn");
-                String author = (String)doc.get("author");
-                String text = (String)doc.get("text");
-                
-                // add document to index
-                addDoc(w, title, isbn, author, text);
-            }
-            
-        } catch (IOException ex) {
-            Logger.getLogger(IRProject.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (org.json.simple.parser.ParseException ex) {
-            Logger.getLogger(IRProject.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private static void addDoc(IndexWriter w, String title, String isbn, String author, String text) throws IOException {
-       
-        Document doc = new Document();
-        doc.add(new TextField("title", title, Field.Store.YES));        // The title field, we do want to tokenize this, we never know why.
-        doc.add(new StringField("isbn", isbn, Field.Store.YES));        // String field because we don't need to index it.
-        doc.add(new StringField("author", author, Field.Store.YES));    // Same as above
-        
-        FieldType type = new FieldType();
-        type.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS);
-        type.setStored(true);
-        type.setStoreTermVectors(true);
-        type.setTokenized(true);
-        type.setStoreTermVectorOffsets(true);
-        
-        Field field = new Field("text", text, type);
-        
-        doc.add(field);
-        
-        w.addDocument(doc);
-    }
-       
 }
