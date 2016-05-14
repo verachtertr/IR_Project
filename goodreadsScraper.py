@@ -179,12 +179,16 @@ if __name__ == '__main__':
     readBooks('data/books.json')
     try:
         #parseBook("https://www.goodreads.com/book/show/42615.War_of_the_Rats")
-        #parseUser("https://www.goodreads.com/user/show/25962177-robin",0,1)	# parse Robin
-        parseUser("https://www.goodreads.com/user/show/23496067-elise-kuylen",0,1) # parse Elise
-
+        parseUser("https://www.goodreads.com/user/show/25962177-robin",0,1)	# parse starting for Robin, will skip Robin if error occurs
         #parseUser("https://www.goodreads.com/user/show/94602-kelly",0,0)
     except:
         # An error occured, print users and books, so we have something
+        print("An error occured, writing accumulated books and users to file")
+
+    try:
+        parseUser("https://www.goodreads.com/user/show/25962177-robin",0,0) # parse Robin
+        parseUser("https://www.goodreads.com/user/show/23496067-elise-kuylen",0,0) # parse Elise
+    except:
         print("An error occured, writing accumulated books and users to file")
     #    print(sys.exc_info()[0])
     print(len(users))
