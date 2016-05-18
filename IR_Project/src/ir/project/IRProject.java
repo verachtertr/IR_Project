@@ -59,8 +59,10 @@ public class IRProject {
 
         // Index some books
         Indexer indexer = new Indexer();
-        indexer.index("./resources/books_RE.json");
+        indexer.index("./resources/books_reviews.json");
         Directory index = indexer.getIndex();
+        
+        System.out.println("INDEXED");
             
         // Construct matrix with tf-idf vectors of our books.
         TFIDFMatrix termMatrix = new TFIDFMatrix(index);
@@ -82,8 +84,10 @@ public class IRProject {
             Matrix reduceDimensionality = new Matrix(count, reader.maxDoc());
             for (int i=0; i<maxDimension;i++) {
             reduceDimensionality.set(i, i, 1);
-            }*/
+            }
             
+            TODO Do not forget to also change the query*/
+            // new q = S.inv * U.transpose * q
             
             //Matrix newFrequencyMatrix = U.times(S).times(V.transpose());
             

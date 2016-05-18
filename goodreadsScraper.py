@@ -64,6 +64,18 @@ def parseBook(url, depth, maxdepth):
     abstract = abstract.strip()
     print(abstract)
 
+    # Adding review text as well
+    reviews = tree.xpath('//div[@class="reviewText stacked"]/span/span[2]')
+    reviewText = ""
+    print(len(reviews))
+    for i in range(0,min(len(reviews),5)):
+        r = extractText(reviews[i])
+        r = re.sub('[^a-zA-Z ]+', '', r)
+        print(r)
+        reviewText += r + " "
+
+    print(reviewText)
+
     abstract = re.sub('[^a-zA-Z ]+', '', abstract)
     if len(abstract) < 100:
         # Too short a text -> skip book
@@ -77,7 +89,9 @@ def parseBook(url, depth, maxdepth):
         return None
     users = tree.xpath('//a[@class="user"]')
 
-    
+
+    text = abstract + " " + reviewText
+
     # Create book object, and push it into the books vector.
     book = Book.Book(isbnr, t.strip(),a.strip(), abstract )
 
@@ -177,19 +191,21 @@ def readBooks(filename):
 
 if __name__ == '__main__':
     readBooks('data/books.json')
+
+    parseBook('https://www.goodreads.com/book/show/40445.Altered_Carbon',0,0)
     try:
         #parseBook("https://www.goodreads.com/book/show/42615.War_of_the_Rats")
-        parseUser("https://www.goodreads.com/user/show/25962177-robin",0,1)	# parse starting for Robin, will skip Robin if error occurs
-        #parseUser("https://www.goodreads.com/user/show/94602-kelly",0,0)
+        #parseUser("https://www.goodreads.com/user/show/25962177-robin",0,1)	# parse starting for Robin, will skip Robin if error occurs
+        parseUser("https://www.goodreads.com/user/show/25962177-robin",0,0) # parse Robin
+        parseUser("https://www.goodreads.com/user/show/23496067-elise-kuylen",0,0) # parse Elise
+        parseUser("https://www.goodreads.com/user/show/55970026-ir-test",0,0) # parse Test User
+
+
     except:
         # An error occured, print users and books, so we have something
         print("An error occured, writing accumulated books and users to file")
+        print(sys.exc_info()[0])
 
-    try:
-        parseUser("https://www.goodreads.com/user/show/25962177-robin",0,0) # parse Robin
-        parseUser("https://www.goodreads.com/user/show/23496067-elise-kuylen",0,0) # parse Elise
-    except:
-        print("An error occured, writing accumulated books and users to file")
     #    print(sys.exc_info()[0])
     print(len(users))
     with open('data/users.json', 'w') as userfile:

@@ -1,7 +1,7 @@
 - Data:
 	Need better data:
-		* Only keep alphabetical characters
-		* strip too short texts (because they provide little information)
+x		* Only keep alphabetical characters
+x		* strip too short texts (because they provide little information)
 		* Add reviews as extra text (Optional)
 
 	Find a way to exclude books from the search space. 
@@ -22,14 +22,15 @@
 
 - LSI: Dimensionality reduction
 	-> Probably most useful improvement
+	-> Find Best k by trial and error.
 
 - LSH
 	-> Improves performance for high dimensionality
 	-> Not as useful if we use LSI, so probably don't do it
 
 PLANNING
-Robin 	-> Start on Data preparation
-		-> Research LSI 
+Robin x	-> Start on Data preparation
+      x -> Research LSI 
 
 Elise	-> Start on querying on the test data
 		-> Do some evaluation
