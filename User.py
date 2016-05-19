@@ -12,15 +12,36 @@ class User:
             retStr += "\t " + str(book) + " " + score + "\n"
         return retStr
 
-    def getJson(self):
-        retString = "{\"name\": \"" + str(self.name) + "\",\n" + "\"ratings\": "
-        # Print the array of mappings.
-        retString += "["
-        for isbn, score in self.rated.items():
-            retString += "{"
-            retString += "\"book_isbn\": \"" + isbn + "\",\n"
-            retString += "\"score\": " + str(score) + ",\n"
-            retString += "},\n"
-        retString += "]\n"
-        retString += "}"
-        return retString
+    def getJson(self, books=[]):
+        if books == []:
+            retString = "{\"name\": \"" + str(self.name) + "\",\n" + "\"ratings\": "
+            # Print the array of mappings.
+            retString += "["
+            for isbn, score in self.rated.items():
+                retString += "{"
+                retString += "\"book_isbn\": \"" + isbn + "\",\n"
+                retString += "\"score\": " + str(score) + ",\n"
+                retString += "},\n"
+            retString += "]\n"
+            retString += "}"
+            return retString
+        else:
+            retString = "{\"name\": \"" + str(self.name) + "\",\n" + "\"ratings\": "
+            # Print the array of mappings.
+            retString += "["
+            for isbn, score in self.rated.items():
+                retString += "{"
+                retString += "\"book_isbn\": \"" + isbn + "\",\n"
+                retString += "\"score\": " + str(score) + ",\n"
+                for b in books:
+                    if b.isbn == isbn:
+                        retString += "\"text\": " + b.abstract+",\n"
+                retString += "},\n"
+            retString += "]\n"
+            retString += "}"
+            return retString
+def containsBook(book):
+    for b in books:
+        if b.isbn == book.isbn:
+            return True
+    return False
