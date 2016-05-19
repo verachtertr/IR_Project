@@ -62,7 +62,6 @@ To evaluate the quality of our indexing process, we timed how long it took for d
 
 \subsubsection{With dimensionality reduction}
 
-
 %TODO fancy table with times for different sizes of dataset
 
 \subsection{Recommendation}
@@ -92,8 +91,8 @@ This gave us the following results:
 \end{itemize}
 
 \subsubsection{With dimensionality reduction}
-
-After adding dimensionality reduction, we ran the tests mentioned above, on a small dataset of books, and got the following results.
+Because SVD is a very costly operation, we only used a very small data set to test this on. Otherwise we got a Heap Memory Overflow.
+We ran the same tests as mentioned above on this datasat and got the following results.
 
 \paragraph{Recommendation based on single book}
 
@@ -108,6 +107,7 @@ The average precision @ 10 for user 'Robin Verachtert' with a small of books to 
 \item \textbf{Adding cosine similarity results:}
 \end{itemize}
 
-\section{External sources}
+\section{Code}
+The code created in this project can be found at \url{https://github.com/verachtertr/IR_project}
 
 \end{document}
