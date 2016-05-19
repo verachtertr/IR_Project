@@ -66,11 +66,12 @@ public class DifferentRuns {
 
             while (ratingsIterator.hasNext()) {
                 x++;
+                System.out.println(x);
                 JSONObject doc = ratingsIterator.next();
-                if (x >= 10) {
+                /*if (x >= 10) {
                     userProfile.add((String)doc.get("book_isbn"));
                     break;
-                }
+                }*/
 
                 String isbn = (String) doc.get("book_isbn");
                 Long rating = (Long) doc.get("score");
