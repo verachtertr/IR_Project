@@ -76,19 +76,19 @@ def parseBook(url, depth, maxdepth):
     print(len(reviews))
     for i in range(0,min(len(reviews),5)):
         r = extractText(reviews[i])
-        r = re.sub('[^a-zA-Z ]+', '', r)
+        r = re.sub('[^a-zA-Z0-9 ]+', '', r)
         print(r)
         reviewText += r + " "
 
     print(reviewText)
 
-    abstract = re.sub('[^a-zA-Z ]+', '', abstract)
+    abstract = re.sub('[^a-zA-Z0-9 ]+', '', abstract)
     if len(abstract) < 100:
         # Too short a text -> skip book
         return None
 
-    t = re.sub('[^a-zA-Z ]+', '', title[0].text)
-    a = re.sub('[^a-zA-Z ]+', '', author[0].text)
+    t = re.sub('[^a-zA-Z0-9 ]+', '', title[0].text)
+    a = re.sub('[^a-zA-Z0-9 ]+', '', author[0].text)
 
     if len(t) < 2:
         # Title is probably useless -> skip book.
