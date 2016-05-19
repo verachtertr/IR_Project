@@ -47,7 +47,7 @@ public class DifferentRuns {
 
             JSONParser parser = new JSONParser();
 
-            Object obj = parser.parse(new FileReader("./resources/IR_test_user.json"));
+            Object obj = parser.parse(new FileReader("./resources/users_test.json"));
             JSONArray array = (JSONArray) obj;
             Iterator<JSONObject> iterator = array.iterator();
 
@@ -74,8 +74,10 @@ public class DifferentRuns {
                 }
             }
             
+            double totalPrecision = 0;
+            
             for (String isbn : userLikes) {
-                System.out.println("Recommending for " + isbn);
+                //System.out.println("Recommending for " + isbn);
                 List<String> recommendations = recommender.getRecommendationsISBN(isbn, 10);
                 int numCorrect = 0;
                 for(String rec : recommendations) {
@@ -84,8 +86,12 @@ public class DifferentRuns {
                     }
                 }
                 double precisionAtTen = (double)numCorrect / 10.0;
-                System.out.println("Precision @10: " + precisionAtTen);
+                //System.out.println("Precision @10: " + precisionAtTen);
+                totalPrecision += precisionAtTen;
             }
+            
+            totalPrecision /= userLikes.size();
+            System.out.println(totalPrecision);
 
         } catch (IOException ex) {
             Logger.getLogger(DifferentRuns.class.getName()).log(Level.SEVERE, null, ex);
@@ -109,13 +115,11 @@ public class DifferentRuns {
 
         System.out.println("Used SVD");
 
-        List<String> userProfile = new ArrayList();
-
         // read in user data from JSON
         JSONParser parser = new JSONParser();
 
         try {
-            Object obj = parser.parse(new FileReader("./resources/IR_test_user.json"));
+            Object obj = parser.parse(new FileReader("./resources/users_test.json"));
             JSONArray array = (JSONArray) obj;
             Iterator<JSONObject> iterator = array.iterator();
 
@@ -123,69 +127,46 @@ public class DifferentRuns {
             String name = (String) user1.get("name");
             System.out.println("Hi " + name);
             JSONArray ratings = (JSONArray) user1.get("ratings");
-
-            HashMap<String, Integer> top = new HashMap();
-            int x = 0;
+            
+            List<String> userProfile = new ArrayList();
+            List<String> userLikes = new ArrayList();
+            
             Iterator<JSONObject> ratingsIterator = ratings.iterator();
-
-            while (ratingsIterator.hasNext()) {
-                x++;
-                System.out.println(x);
+            
+           while (ratingsIterator.hasNext()) {
                 JSONObject doc = ratingsIterator.next();
-                /*if (x >= 10) {
-                    userProfile.add((String)doc.get("book_isbn"));
-                    break;
-                }*/
 
                 String isbn = (String) doc.get("book_isbn");
                 Long rating = (Long) doc.get("score");
                 userProfile.add(isbn);
-                System.out.println("Isbn " + isbn);
+                
                 if (rating >= 4) {
-                    // look up tfidfvector by isbn
-                    for (int i = 0; i < termMatrix.getNumDocs(); i++) {
-                        TFIDFBookVector vec = termMatrix.getTFIDFVector(i);
-                        if (vec.getISBN().equals(isbn)) {
-                            vec.setVector(d.changeQuery(vec).getVector());
-                            // get cosine similarities
-                            HashMap<String, Double> similarities = new HashMap();
-                            for (int j = 0; j < termMatrix.getNumDocs(); j++) {
-
-                                TFIDFBookVector book = termMatrix.getTFIDFVector(j);
-                                if (!userProfile.contains(book.getISBN())) {
-                                    Double sim = vec.cosineSimilarity(book);
-                                    similarities.put(book.getTitle(), sim);
-                                }
-                            }
-                            HashMap<String, Double> sortedSim = sortByValues(similarities);
-
-                            // show first 10
-                            int t = 0;
-                            for (String key : sortedSim.keySet()) {
-                                if (t >= 20) {
-                                    break;
-                                }
-                                t++;
-                                if (top.containsKey(key)) {
-                                    top.put(key, top.get(key) + 1);
-                                } else {
-                                    top.put(key, 1);
-                                }
-                            }
-                            break;
-                        }
+                    userLikes.add(isbn);
+                }
+            }
+           
+            SingleBookRecommender recommender = new SingleBookRecommender(termMatrix);
+           
+            double totalPrecision = 0;
+            
+            for (String isbn : userLikes) {
+                System.out.println("Recommending for " + isbn);
+                List<String> recommendations = recommender.getRecommendationsISBN(isbn, 10);
+                int numCorrect = 0;
+                for(String rec : recommendations) {
+                    if(userLikes.contains(rec)) {
+                        numCorrect++;
                     }
                 }
-
+                double precisionAtTen = (double)numCorrect / 10.0;
+                System.out.println("Precision @10: " + precisionAtTen);
+                totalPrecision += precisionAtTen;
             }
+            
+            totalPrecision /= userLikes.size();
+            System.out.println(totalPrecision);
 
-            System.out.println("For you we recommend the following books:");
-
-            HashMap<String, Integer> sortedTop = sortByValues(top);
-
-            for (Map.Entry<String, Integer> entry : sortedTop.entrySet()) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
-            }
+          
 
         } catch (IOException ex) {
             Logger.getLogger(IRProject.class.getName()).log(Level.SEVERE, null, ex);
@@ -241,6 +222,9 @@ public class DifferentRuns {
             
             List<String> trainingSet = userLikes.subList(0, numTraining);
             List<String> testSet = userLikes.subList(numTraining, userLikes.size());
+            
+            System.out.println(trainingSet);
+            System.out.println(testSet);
             
             // technique 1
             List<String> recommendationsCompareTopK = recommender.getRecommendationsCompareTopKISBN(userProfile, trainingSet, 10);

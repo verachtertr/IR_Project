@@ -3,8 +3,6 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
-\usepackage{hyperref}
-
 \author{Elise Kuylen \and Robin Verachtert}
 \title{Information Retrieval Project}
 \begin{document}
@@ -12,18 +10,13 @@
 
 \section{Introduction}
 
-For this project, we implemented a \textit{content-based} recommendation system for books. Based on which books a user has liked before, we tried to recommend new books, that were similar in content and would (hopefully) also interest the user.
+For this project, we implemented a \textit{content-based} recommendation system for books. Based on which books a user has like before, we tried to recommend new books, that were similar in content and would (hopefully) also interest the user.
 
 \section{Algorithms implemented}
 
-To create our recommendation system, we first had to index a set of documents - the summaries and reviews of the books in our database. Next, we constructed tf-idf vectors for these books, which we could then compare to determine the similarity of different books. We also implemented dimensionality reduction. %TODO some more about dimensionality reduction
+To create our recommendation system, we first had to index a set of documents - the summaries and reviews of the books in our database. Next, we constructed TF-IDF vectors for these books, which we could then compare to determine the similarity of different books. Comparing documents on the basis of their TF-IDF vectors was done using the cosine similarity measure.
 
-\subsection{Indexing a collection of documents}
-
-\subsection{Vector space model}
-
-\subsection{Dimensionality reduction}
-To perform a dimensionality reduction we had to use Singular Value Decomposition. For this we consulted the chapter in the book describing the dimensionality reduction.  %TODO do I mention the slides are wrong?
+We also implemented dimensionality reduction. %TODO some more about dimensionality reduction
 
 \section{Design choices}
 
@@ -31,60 +24,38 @@ To perform a dimensionality reduction we had to use Singular Value Decomposition
 
 To get a sufficiently large dataset of books and user reviews of those books, we scraped the Goodreads database. Goodreads is a social platform that allows users to rate and review the books they have read. \\
 We saved the information we got from Goodreads in JSON format, since this is easy to parse.
-We collected some different datasets, of different sizes, so we had a good variety to test the project on. There is a small dataset, only containing books of 2 users, this is the smallest set, which we used to quickly test newly implemented parts. Then there is a bookset of about 2000 books and one of about 10000 books. The last one we mostly used to test the speed of the indexer, because on our normal computers the similarity computation took too long.
-
-We also have an additional dataset containing reviews of clothing, shoes,and jewelry from Amazon \footnote{\url{http://jmcauley.ucsd.edu/data/amazon/}}. This is a larger dataset containing 250000 reviews. This dataset is exclusively used for testing the speed of the indexer.
 
 \subsection{Lucene for indexing}
 
-To index the summaries and reviews of the books that we had scraped from Goodreads, we used the Lucene library. For indexing we used a English Analyzer to pre-process the data and perform stemming.
-%TODO Do we have to elaborate?
+To index the summaries and reviews of the books that we had scraped from Goodreads, we used the Lucene library. %TODO some more about how we exactly indexed, English analyser for tokenization, ...
 
 \subsection{Creating tf-idf vectors}
 
-To store the TF-IDF vectors of our books, we create the class TFIDFBookVector.
-%TODO sparse vector
-%TODO calculation of weights
+To store the TF-IDF vectors of our books, we create the class TFIDFBookVector. Since many of the terms in our document collection will not be present in the term vector of one document, we used a sparse vector to save the TF-IDF weights of these terms. Apart from that, we also saved some information about the book, such as title, ISBN and author.\\
+TF-IDF weights were calculated from the information present in the index: the term vectors of the documents and the overall frequency of terms in the document collection.\\
+We saved 
 
-%TODO matrix
 
 \subsection{Recommendation}
 
 To make recommendations we used two different strategies:
 \begin{itemize}
 \item \textbf{Based on one book:} To make recommendations based on one book in the user's profile, we treated the text of the summary and the reviews for this book as a query. Next, we constructed a TF-IDF vector for this query, and compared it to the TF-IDF vectors in our matrix, using the cosine similarity measure. Once this was done, we sorted the books according to their similarity with the TF-IDF vector for the user's book and returned the first 10 results.
-\item \textbf{Based on all books in the user's profile} %TODO different strategies: comparing top 20s / adding vectors / adding cosine similarities
+\item \textbf{Based on all books in the user's profile} While making recommendations on the basis of one book the user has liked is interesting, it would be more interesting if we could recommend books based on the entire set of books that a user has enjoyed. However, we could not discover any algorithms that used a Vector Space Model to do this. Thus, we experimented with three different techniques to try to find a solution to this problem:
+\begin{itemize}
+%TODO different strategies: comparing top 20s / adding vectors / adding cosine similarities
+\end{itemize}
 \end{itemize}
 
 \subsection{Dimensionality reduction}
 
-We decided to not implement this ourselves, because there are enough libraries supporting it.\\
-The SVD library we used is UJMP \footnote{\url{https://ujmp.org/}}. This also provided a sparse matrix implementation which is relevant to the total memory consumed. The implementation is very straightforward. You start with a matrix M x N and perform the SVD which provides 3 matrixes. $U$ (M x M), $\Sigma$ (M x N) and $V$ (N x N). Then you reduce the complexity by keeping the k first columns of $U$ and $V$ and making $\Sigma$ a k x k matrix with the k highest singular values on the diagonal. From this you can compute the term matrix again (in the reduced space) by doing:
-\[
-M_k = U_k * \Sigma_k * V_k^T
-\]
-When we want to match a query we have to also map this query vector to the reduced dimension space.
-\[
-q_k = \Sigma_k^{-1} * U_k^t * q
-\]
-This gives a vector of the same size as $q$, so we can use it the same as before to query against the term Matrix.
+%TODO explanation about how we did dimensionality reduction
 
 \section{Evaluation results}
 
 \subsection{Indexing}
 
-To evaluate the quality of our indexing process, we timed how long it took to run the indexer for different sizes of datasets. We checked the time consumption for regular indexing as well as for indexing followed by dimensionality reduction.
-
-\begin{tabular} {l|l}
-Dataset & Time Consumption \\ \hline
-Clothing,Shoes,and Jewelry data set from Amazon (150MB) \footnote{\url{http://jmcauley.ucsd.edu/data/amazon/}} &  45388 ms \\ \hline
-10000 books dataset & 9332 ms \\ \hline
-
-180 books dataset & 2800 ms \\ \hline
-
-Note that these were times gotten on a low performance computer (less than 4GB RAM) so when running on a faster system these times would probably improve.
-
-\end{tabular}
+To evaluate the quality of our indexing process, we timed how long it took for different sizes of datasets. We checked the time consumption for regular indexing as well as for indexing followed by dimensionality reduction. %TODO should we do space consumption?
 \subsubsection{Regular}
 
 %TODO fancy table with times for different sizes of dataset
@@ -96,15 +67,19 @@ Note that these were times gotten on a low performance computer (less than 4GB R
 
 \subsection{Recommendation}
 
-To evaluate our recommendation process, we looked at the precision of our results.\footnote{Recall is less relevant here, and it is also nigh impossible to check: we would have to decide manually, for each book in our dataset, whether a book is relevant for a particular user or not.}
-
-%TODO data books_reviews.json
+To evaluate our recommendation process, we looked at the precision of our results.\footnote{Recall is less relevant here, and it is also nigh impossible to check: we would have to decide manually, for each book in our dataset, whether a book is relevant for a particular user or not.} We used two users to test our system: a real user account, that of Robin Verachtert, and 'IR Test', a user account that we created for this project, and which mainly contains Fantasy novels.
 
 \subsubsection{Regular}
 
 \paragraph{Recommendation based on single book}
 To evaluate the results of recommendation based on one book, we let the system make a top-10 of recommendations for each book for which our test user had given a score of 4 stars or higher. We then compared the books in this top-10 with the other books the user had liked previously, and calculated the precision @ 10.
-The average precision @ 10 for user XXX with data XXX was XXX. %TODO fill in which data set etc we use to test
+The average precision @ 10 for user 'IR Test' with a small of books to recommend from was 0.567. 
+The average precision @ 10 for user 'IR Test' with a larger set of books to recommend from was 0.247.
+
+The average precision @ 10 for user 'Robin Verachtert' with a small of books to recommend from was 0.448. 
+The average precision @ 10 for user 'Robin Verachtert' with a larger set of books to recommend from was 0.173.
+
+We also checked the books that were recommend manually, to find an explanation for the rather low results for precision. We found that things like names of people and countries were very influential in deciding which books were recommended - since they are often rare in the complete set of documents that was indexed. However, names and countries often do not decide the genre or subject of a book, an thus are not very relevant for recommendation. 
 
 \paragraph{Recommendation based on multiple books}
 To evaluate recommendation based on a set of books, we used 80\% of the user's 'likes' (books that were given 4 stars or more) as a training set to base our recommendations on. We used the 3 techniques described above to generate a top-10 of recommendations for our test user. Then we compared the content of this top-10 with the remaining 20\% of the user's 'likes', which we used as our test set.
@@ -118,12 +93,21 @@ This gave us the following results:
 
 \subsubsection{With dimensionality reduction}
 
-%TODO results of precision @ 10 for different users
-% graph?
-% list?
+After adding dimensionality reduction, we ran the tests mentioned above, on a small dataset of books, and got the following results.
+
+\paragraph{Recommendation based on single book}
+
+The average precision @ 10 for user 'IR Test' with a small of books to recommend from was 0.411.
+The average precision @ 10 for user 'Robin Verachtert' with a small of books to recommend from was 0.370.
+
+\paragraph{Recommendation based on multiple books}
+
+\begin{itemize}
+\item \textbf{Comparing top-10s of separate books:} %TODO result with correct user and data set
+\item \textbf{Adding vectors of books:}
+\item \textbf{Adding cosine similarity results:}
+\end{itemize}
 
 \section{External sources}
 
-\section{Code}
-The code created in this project can be found at \url{https://github.com/verachtertr/IR_project}
 \end{document}
