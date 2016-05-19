@@ -5,42 +5,11 @@
  */
 package ir.project;
 
-import Jama.Matrix;
-import Jama.SingularValueDecomposition;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
+import ir.project.helper.SVDecomposition;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.similarities.TFIDFSimilarity;
 
-import org.json.simple.*;
-import org.json.simple.parser.JSONParser;
+import org.ujmp.core.SparseMatrix;
+import org.ujmp.core.Matrix;
 
 
 
@@ -57,7 +26,7 @@ public class IRProject {
      */
     public static void main(String[] args) {
 
-        // Index some books
+        /*// Index some books
         Indexer indexer = new Indexer();
         indexer.index("./resources/books_reviews.json");
         Directory index = indexer.getIndex();
@@ -69,28 +38,36 @@ public class IRProject {
         
         for(int i = 0; i < termMatrix.getNumDocs(); i++) {
             termMatrix.testCosineSimilarity(2, i);
-        }
-            
-            // Lower the dimensionality, by using SVD
-            /*Matrix frequencyMatrix = new Matrix(termMatrix);
-            SingularValueDecomposition svdComput = frequencyMatrix.svd();
-            
-            Matrix U = svdComput.getU();
-            Matrix S = svdComput.getS();
-            Matrix V = svdComput.getV();
-            
-            // TODO Pick a good number for max dimensions.
-            int maxDimension = 8;
-            Matrix reduceDimensionality = new Matrix(count, reader.maxDoc());
-            for (int i=0; i<maxDimension;i++) {
-            reduceDimensionality.set(i, i, 1);
-            }
-            
-            TODO Do not forget to also change the query*/
-            // new q = S.inv * U.transpose * q
-            
-            //Matrix newFrequencyMatrix = U.times(S).times(V.transpose());
-            
+        }*/
+        
+        SparseMatrix sparse = SparseMatrix.Factory.zeros(4,5);
+        sparse.setAsDouble(1,0,0);
+        sparse.setAsDouble(2,0,4);
+        sparse.setAsDouble(3,1,2);
+        sparse.setAsDouble(2,3,1);
+        
+        SVDecomposition decomposition = new SVDecomposition(sparse);
+        
+        //System.out.println(sparse.toString());
+        Matrix[] SVDMatrixes = sparse.svd();        // Hopefully SVDMatrixes[0] = S
+        
+        System.out.println("Matrix 1:");
+        System.out.println(SVDMatrixes[0].toString());
+        
+        System.out.println("Matrix 2:");
+        System.out.println(SVDMatrixes[1].toString());
+        
+        System.out.println("Matrix 3:");
+        System.out.println(SVDMatrixes[2].toString());
+        
+        TFIDFBookVector query = new TFIDFBookVector(4, "test", "2", "Me");
+        query.editValue(0, 1);
+        query.editValue(1, 1);
+        query.editValue(2, 1);
+        query.editValue(3, 0);
+                
+        TFIDFBookVector new_query = decomposition.changeQuery(query);
+                                    
             // TODO use new matrix to get cosine similarity.
             //TFIDFSimilarity sim = new TFIDFSimilarity();
             /*Analyzer analyzer = new EnglishAnalyzer();  // Use EnglishAnalyzer, so that Lucene auto stems the tokens.

@@ -49,6 +49,10 @@ public class TFIDFBookVector {
         return this.vector;
     }
     
+    public void setVector(RealVector newVector) {
+        this.vector = newVector;
+    }
+    
     public void editValue(int index, double value) 
     {
         vector.addToEntry(index, value);
