@@ -70,15 +70,24 @@ To evaluate the quality of our indexing process, we timed how long it took for d
 \subsection{Recommendation}
 
 To evaluate our recommendation process, we looked at the precision of our results.\footnote{Recall is less relevant here, and it is also nigh impossible to check: we would have to decide manually, for each book in our dataset, whether a book is relevant for a particular user or not.}
-To check the precision of the results, we looked at some users with a sizeable amount of books in their profile. 80\% of these we used as training set, to base ou recommendations on. The other 20\% we used for evaluation. Since we are working with ranked recommendation (on the basis of how similar texts are), we used presicion @ x to evaluate. Since giving a top-10 is an often-used strategy in recommendation, we will evaluate the precision @ 10 of our results. %TODO make this crappy piece of text better
 
 %TODO data books_reviews.json
 
 \subsubsection{Regular}
 
-%TODO results of precision @ 10 for different users
-% graph?
-% list?
+\paragraph{Recommendation based on single book}
+To evaluate the results of recommendation based on one book, we let the system make a top-10 of recommendations for each book for which our test user had given a score of 4 stars or higher. We then compared the books in this top-10 with the other books the user had liked previously, and calculated the precision @ 10.
+The average precision @ 10 for user XXX with data XXX was XXX. %TODO fill in which data set etc we use to test
+
+\paragraph{Recommendation based on multiple books}
+To evaluate recommendation based on a set of books, we used 80\% of the user's 'likes' (books that were given 4 stars or more) as a training set to base our recommendations on. We used the 3 techniques described above to generate a top-10 of recommendations for our test user. Then we compared the content of this top-10 with the remaining 20\% of the user's 'likes', which we used as our test set.
+From this, we again calculated precision @ 10.
+This gave us the following results:
+\begin{itemize}
+\item \textbf{Comparing top-10s of separate books:} %TODO result with correct user and data set
+\item \textbf{Adding vectors of books:}
+\item \textbf{Adding cosine similarity results:}
+\end{itemize}
 
 \subsubsection{With dimensionality reduction}
 
