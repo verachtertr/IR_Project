@@ -17,11 +17,11 @@ public class IRProject {
      */
     public static void main(String[] args) {
         //SVDRecommender.booksSeperate();
-        long time = TimeIndexer.timeIndexer("./resources/books_IR_test.json");
+        //long time = TimeIndexer.timeIndexer("./resources/books_IR_test.json");
         //long time = TimeIndexer.timeSNAPIndexer("./resources/Books_5.json");
-        System.out.println("The operation took: " + time + " ms");
+        //System.out.println("The operation took: " + time + " ms");
         //DifferentRuns.booksSeparate();
-        //DifferentRuns.usingSVDbooksSeperate();
+        DifferentRuns.usingSVDbooksSeperate();
         
         //DifferentRuns.booksMultiple();
     }
