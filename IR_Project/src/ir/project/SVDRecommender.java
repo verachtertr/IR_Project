@@ -28,9 +28,9 @@ import org.json.simple.parser.JSONParser;
  *
  * @author robin
  */
-public class DifferentRuns {
+public class SVDRecommender {
     
-    public static void usingSVDbooksSeperate() {
+    public static void booksSeperate() {
         // Index some books
         Indexer indexer = new Indexer();
         indexer.index("./resources/books_IR_test.json");
@@ -129,8 +129,7 @@ public class DifferentRuns {
             Logger.getLogger(IRProject.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    
+        
     private static HashMap sortByValues(HashMap map) {
         // credits : http://beginnersbook.com/2013/12/how-to-sort-hashmap-in-java-by-keys-and-values/
 
