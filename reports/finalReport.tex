@@ -1,0 +1,91 @@
+\documentclass[10pt,a4paper]{paper}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\author{Elise Kuylen \and Robin Verachtert}
+\title{Information Retrieval Project}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+For this project, we implemented a \textit{content-based} recommendation system for books. Based on which books a user has like before, we tried to recommend new books, that were similar in content and would (hopefully) also interest the user.
+
+\section{Algorithms implemented}
+
+To create our recommendation system, we first had to index a set of documents - the summaries and reviews of the books in our database. Next, we constructed tf-idf vectors for these books, which we could then compare to determine the similarity of different books. We also implemented dimensionality reduction. %TODO some more about dimensionality reduction
+
+\subsection{Indexing a collection of documents}
+
+\subsection{Vector space model}
+
+\subsection{Dimensionality reduction}
+
+\section{Design choices}
+
+\subsection{Dataset collection}
+
+To get a sufficiently large dataset of books and user reviews of those books, we scraped the Goodreads database. Goodreads is a social platform that allows users to rate and review the books they have read. \\
+We saved the information we got from Goodreads in JSON format, since this is easy to parse.
+
+\subsection{Lucene for indexing}
+
+To index the summaries and reviews of the books that we had scraped from Goodreads, we used the Lucene library. %TODO some more about how we exactly indexed, English analyser for tokenization, ...
+
+\subsection{Creating tf-idf vectors}
+
+To store the TF-IDF vectors of our books, we create the class TFIDFBookVector.
+%TODO sparse vector
+%TODO calculation of weights
+
+%TODO matrix
+
+\subsection{Recommendation}
+
+To make recommendations we used two different strategies:
+\begin{itemize}
+\item \textbf{Based on one book:} To make recommendations based on one book in the user's profile, we treated the text of the summary and the reviews for this book as a query. Next, we constructed a TF-IDF vector for this query, and compared it to the TF-IDF vectors in our matrix, using the cosine similarity measure. Once this was done, we sorted the books according to their similarity with the TF-IDF vector for the user's book and returned the first 10 results.
+\item \textbf{Based on all books in the user's profile} %TODO different strategies: comparing top 20s / adding vectors / adding cosine similarities
+\end{itemize}
+
+\subsection{Dimensionality reduction}
+
+%TODO explanation about how we did dimensionality reduction
+
+\section{Evaluation results}
+
+\subsection{Indexing}
+
+To evaluate the quality of our indexing process, we timed how long it took for different sizes of datasets. We checked the time consumption for regular indexing as well as for indexing followed by dimensionality reduction. %TODO should we do space consumption?
+\subsubsection{Regular}
+
+%TODO fancy table with times for different sizes of dataset
+
+\subsubsection{With dimensionality reduction}
+
+
+%TODO fancy table with times for different sizes of dataset
+
+\subsection{Recommendation}
+
+To evaluate our recommendation process, we looked at the precision of our results.\footnote{Recall is less relevant here, and it is also nigh impossible to check: we would have to decide manually, for each book in our dataset, whether a book is relevant for a particular user or not.}
+To check the precision of the results, we looked at some users with a sizeable amount of books in their profile. 80\% of these we used as training set, to base ou recommendations on. The other 20\% we used for evaluation. Since we are working with ranked recommendation (on the basis of how similar texts are), we used presicion @ x to evaluate. Since giving a top-10 is an often-used strategy in recommendation, we will evaluate the precision @ 10 of our results. %TODO make this crappy piece of text better
+
+%TODO data books_reviews.json
+
+\subsubsection{Regular}
+
+%TODO results of precision @ 10 for different users
+% graph?
+% list?
+
+\subsubsection{With dimensionality reduction}
+
+%TODO results of precision @ 10 for different users
+% graph?
+% list?
+
+\section{External sources}
+
+\end{document}
