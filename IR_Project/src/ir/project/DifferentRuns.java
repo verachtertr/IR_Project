@@ -8,6 +8,7 @@ package ir.project;
 import ir.project.helper.SVDecomposition;
 import java.io.FileReader;
 import java.io.IOException;
+import static java.lang.Math.round;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -189,6 +190,94 @@ public class DifferentRuns {
             Logger.getLogger(IRProject.class.getName()).log(Level.SEVERE, null, ex);
         } catch (org.json.simple.parser.ParseException ex) {
             Logger.getLogger(IRProject.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public static void booksMultiple() {
+        try {
+            // Index some books
+            Indexer indexer = new Indexer();
+            indexer.index("./resources/books_IR_test.json");
+            Directory index = indexer.getIndex();
+            
+            TFIDFMatrix termMatrix = new TFIDFMatrix(index);
+            System.out.println("INDEXED");
+            
+            MultipleBookRecommender recommender = new MultipleBookRecommender(termMatrix);
+            
+            JSONParser parser = new JSONParser();
+            
+            Object obj = parser.parse(new FileReader("./resources/IR_test_user.json"));
+            JSONArray array = (JSONArray) obj;
+            Iterator<JSONObject> iterator = array.iterator();
+
+            JSONObject user1 = iterator.next();
+            String name = (String) user1.get("name");
+            System.out.println("Hi " + name);
+            JSONArray ratings = (JSONArray) user1.get("ratings");
+
+            HashMap<String, Integer> top = new HashMap();
+            Iterator<JSONObject> ratingsIterator = ratings.iterator();
+            
+            List<String> userProfile = new ArrayList();
+            List<String> userLikes = new ArrayList();
+
+            while (ratingsIterator.hasNext()) {
+                JSONObject doc = ratingsIterator.next();
+
+                String isbn = (String) doc.get("book_isbn");
+                Long rating = (Long) doc.get("score");
+                userProfile.add(isbn);
+                
+                if (rating >= 4) {
+                    userLikes.add(isbn);
+                }
+            }
+            
+            int numLikes = userLikes.size();
+            int numTraining = (int) round((double)numLikes * 0.8);
+            int numTest = numLikes - numTraining;
+            
+            List<String> trainingSet = userLikes.subList(0, numTraining);
+            List<String> testSet = userLikes.subList(numTraining, userLikes.size());
+            
+            // technique 1
+            List<String> recommendationsCompareTopK = recommender.getRecommendationsCompareTopK(userProfile, trainingSet, 10);
+            int numCorrectCompareTopK = 0;
+            for(String rec : recommendationsCompareTopK) {
+                if(testSet.contains(rec)) {
+                    numCorrectCompareTopK++;
+                }
+            }
+            double precisionAtTenCompareTopK = (double)numCorrectCompareTopK / 10.0;
+            System.out.println("Precision @10 for method 'Compare top k': " + precisionAtTenCompareTopK);
+            
+            // technique 2
+            List<String> recommendationsAddBookVectors = recommender.getRecommendationsAddBookVectors(userProfile, trainingSet, 10);
+            int numCorrectAddBookVectors = 0;
+            for (String rec: recommendationsAddBookVectors) {
+                if(testSet.contains(rec)) {
+                    numCorrectAddBookVectors++;
+                }
+            }
+            double precisionAddBookVectors = (double)numCorrectAddBookVectors / 10.0;
+            System.out.println("Precision @10 for method 'Add book vectors': " + precisionAddBookVectors);
+            
+            // technique 3
+            List<String> recommendationsAddSims = recommender.getRecommendationsAddCosineSimilarities(userProfile, testSet, 10);
+            int numCorrectAddSims = 0;
+            for (String rec: recommendationsAddSims) {
+                if(testSet.contains(rec)) {
+                    numCorrectAddSims++;
+                }
+            }
+            double precisionAddSims = (double)numCorrectAddSims / 10.0;
+            System.out.println("Precision @10 for method 'Add cosine similarities': " + precisionAddSims);
+            
+        } catch (IOException ex) {
+            Logger.getLogger(DifferentRuns.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(DifferentRuns.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
