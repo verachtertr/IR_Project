@@ -74,6 +74,53 @@ public class MultipleBookRecommender {
 
     }
     
+    List<String> getRecommendationsCompareTopKISBN(List<String> userProfile, List<String> userLikes, int top) {
+            HashMap<String, Integer> topRecs = new HashMap();
+            
+            for (int i = 0; i < termMatrix.getNumDocs(); i++) {
+                TFIDFBookVector userBook = termMatrix.getTFIDFVector(i);
+                if (userLikes.contains(userBook.getISBN())) {
+                    HashMap<String, Double> similarities = new HashMap();
+                    for (int j = 0; j < termMatrix.getNumDocs(); j++) {
+                        TFIDFBookVector book = termMatrix.getTFIDFVector(j);
+                        if (!userProfile.contains(book.getISBN())) {
+                            Double sim = userBook.cosineSimilarity(book);
+                            similarities.put(book.getISBN(), sim);
+                        }
+                    }
+                    
+                    HashMap<String, Double> sortedSim = sortByValues(similarities);
+
+                    int t = 0;
+                    for (String key : sortedSim.keySet()) {
+                        if (t >= top) {
+                            break;
+                        }
+                        t++;
+                        if (topRecs.containsKey(key)) {
+                            topRecs.put(key, topRecs.get(key) + 1);
+                        } else {
+                            topRecs.put(key, 1);
+                        }
+                    }
+                }
+            }
+                
+        HashMap<String, Integer> sortedTop = sortByValues(topRecs);
+        List<String> recommendations = new ArrayList();
+        
+        int i = 0;
+        for (String key : sortedTop.keySet()) {
+            if (i >= top) {
+                break;
+            }
+            i++;
+            recommendations.add(key);
+        }
+        return recommendations;
+
+    }
+    
     List<String> getRecommendationsAddBookVectors(List<String> userProfile, List<String> userLikes, int top) {
         TFIDFBookVector userBooks = new TFIDFBookVector(termMatrix.getNumTerms());
         
@@ -112,6 +159,44 @@ public class MultipleBookRecommender {
     
     }
     
+    List<String> getRecommendationsAddBookVectorsISBN(List<String> userProfile, List<String> userLikes, int top) {
+        TFIDFBookVector userBooks = new TFIDFBookVector(termMatrix.getNumTerms());
+        
+        // construct vector with all books combined
+        for (int i = 0; i < termMatrix.getNumDocs(); i++) {
+            TFIDFBookVector book = termMatrix.getTFIDFVector(i);
+            if (userLikes.contains(book.getISBN())) {
+                userBooks.addVector(book);
+            }
+        }
+        
+        // treat this vector as a single 'book'
+        HashMap<String, Double> cosineSimilarities = new HashMap();
+        
+        for (int j = 0; j < termMatrix.getNumDocs(); j++) {
+            TFIDFBookVector book = termMatrix.getTFIDFVector(j);
+            if (! userProfile.contains(book.getISBN())) {
+                Double cosineSimilarity = userBooks.cosineSimilarity(book);
+                cosineSimilarities.put(book.getISBN(), cosineSimilarity);
+            }
+        }
+
+        HashMap<String, Double> sortedSimilarities = sortByValues(cosineSimilarities);
+        List<String> recommendations = new ArrayList();
+        
+        int i = 0;
+        for (String key : sortedSimilarities.keySet()) {
+            if (i >= top) {
+                break;
+            }
+            i++;
+            recommendations.add(key);
+        }
+        return recommendations;
+        
+    
+    }
+    
     List<String> getRecommendationsAddCosineSimilarities(List<String> userProfile, List<String> userLikes, int top) {
         HashMap<String, Double> cosineSimilarities = new HashMap();
         
@@ -129,6 +214,44 @@ public class MultipleBookRecommender {
                             cosineSimilarities.put(title, cosineSimilarities.get(title) + cosineSimilarity);
                         } else {
                             cosineSimilarities.put(title, cosineSimilarity);
+                        }
+                    }
+                }
+            }
+        }
+        
+          HashMap<String, Double> sortedSimilarities = sortByValues(cosineSimilarities);
+        List<String> recommendations = new ArrayList();
+        
+        int i = 0;
+        for (String key : sortedSimilarities.keySet()) {
+            if (i >= top) {
+                break;
+            }
+            i++;
+            recommendations.add(key);
+        }
+        return recommendations;
+        
+    }
+    
+     List<String> getRecommendationsAddCosineSimilaritiesISBN(List<String> userProfile, List<String> userLikes, int top) {
+        HashMap<String, Double> cosineSimilarities = new HashMap();
+        
+        for (int i = 0; i < termMatrix.getNumDocs(); i++) {
+            TFIDFBookVector userBook = termMatrix.getTFIDFVector(i);
+            if (userLikes.contains(userBook.getISBN())) {
+                for (int j = 0; j < termMatrix.getNumDocs(); j++) {
+                    TFIDFBookVector book = termMatrix.getTFIDFVector(j);
+                    if (! userProfile.contains(book.getISBN())) {
+                        Double cosineSimilarity = userBook.cosineSimilarity(book);
+                        
+                        String isbn = book.getISBN();
+                        
+                        if (cosineSimilarities.containsKey(isbn)) {
+                            cosineSimilarities.put(isbn, cosineSimilarities.get(isbn) + cosineSimilarity);
+                        } else {
+                            cosineSimilarities.put(isbn, cosineSimilarity);
                         }
                     }
                 }
