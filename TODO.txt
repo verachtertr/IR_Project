@@ -1,15 +1,15 @@
 - Data:
-	Need better data:
+x	Need better data:
 x		* Only keep alphabetical characters
 x		* strip too short texts (because they provide little information)
-		* Add reviews as extra text (Optional)
+x		* Add reviews as extra text (Optional)
 
 	Find a way to exclude books from the search space. 
 		This avoids having to remove them from the top K results, and losing some information there.
 		-> Can be done by subtracting a matrix from the term matrix.
 
-	Use a fake user on Goodreads with specific genre preference
-		-> Used by leaving out some  books from the user, and then run our algo and see that we find them back.
+x	Use a fake user on Goodreads with specific genre preference
+x		-> Used by leaving out some  books from the user, and then run our algo and see that we find them back.
 
 - Evaluation:
 	Compare the 2 possible ways of doing queries
@@ -20,17 +20,8 @@ x		* strip too short texts (because they provide little information)
 	
 	Research Content based evaluation
 
-- LSI: Dimensionality reduction
+x LSI: Dimensionality reduction
 	-> Probably most useful improvement
 	-> Find Best k by trial and error.
 
-- LSH
-	-> Improves performance for high dimensionality
-	-> Not as useful if we use LSI, so probably don't do it
 
-PLANNING
-Robin x	-> Start on Data preparation
-      x -> Research LSI 
-
-Elise	-> Start on querying on the test data
-		-> Do some evaluation
