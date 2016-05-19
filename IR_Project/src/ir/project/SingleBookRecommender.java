@@ -23,11 +23,43 @@ public class SingleBookRecommender {
     
     private final TFIDFMatrix termMatrix;
     
-    SingleBookRecommender(TFIDFMatrix termMatrix) {
+    public SingleBookRecommender(TFIDFMatrix termMatrix) {
         this.termMatrix = termMatrix;
     }
     
-    List<String> getRecommendations(String isbn, int top) {
+    public List<String> getRecommendationsISBN(String isbn, int top) {
+           HashMap<String, Double> cosineSimilarities = new HashMap();
+        
+        for (int i = 0; i < termMatrix.getNumDocs(); i++) {
+            TFIDFBookVector userBook = termMatrix.getTFIDFVector(i);
+            if (userBook.getISBN().equals(isbn)) {
+                
+                for (int j = 0; j < termMatrix.getNumDocs(); j++) {
+                    TFIDFBookVector book = termMatrix.getTFIDFVector(j);
+                    if (! book.getISBN().equals(isbn)) {
+                        Double cosineSimilarity = userBook.cosineSimilarity(book);
+                        cosineSimilarities.put(book.getISBN(), cosineSimilarity);
+                    }
+                }
+                break;
+            }
+        }
+        
+        HashMap<String, Double> sortedSimilarities = sortByValues(cosineSimilarities);
+        List<String> recommendations = new ArrayList();
+        
+        int i = 0;
+        for (String key : sortedSimilarities.keySet()) {
+            if (i >= top) {
+                break;
+            }
+            i++;
+            recommendations.add(key);
+        }
+        return recommendations;
+    }
+    
+    public List<String> getRecommendations(String isbn, int top) {
         
         HashMap<String, Double> cosineSimilarities = new HashMap();
         

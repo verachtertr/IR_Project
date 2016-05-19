@@ -23,12 +23,74 @@ import org.apache.lucene.store.Directory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
  * @author robin
  */
 public class DifferentRuns {
+    
+    public static void booksSeparate() {
+        try {
+            // Index some books
+            Indexer indexer = new Indexer();
+            indexer.index("./resources/books_IR_test.json");
+            Directory index = indexer.getIndex();
+            
+            TFIDFMatrix termMatrix = new TFIDFMatrix(index);
+            System.out.println("INDEXED");
+            
+            SingleBookRecommender recommender = new SingleBookRecommender(termMatrix);
+
+            JSONParser parser = new JSONParser();
+
+            Object obj = parser.parse(new FileReader("./resources/IR_test_user.json"));
+            JSONArray array = (JSONArray) obj;
+            Iterator<JSONObject> iterator = array.iterator();
+
+            JSONObject user1 = iterator.next();
+            String name = (String) user1.get("name");
+            System.out.println("Hi " + name);
+            JSONArray ratings = (JSONArray) user1.get("ratings");
+
+            HashMap<String, Integer> top = new HashMap();
+            Iterator<JSONObject> ratingsIterator = ratings.iterator();
+            
+            List<String> userProfile = new ArrayList();
+            List<String> userLikes = new ArrayList();
+
+            while (ratingsIterator.hasNext()) {
+                JSONObject doc = ratingsIterator.next();
+
+                String isbn = (String) doc.get("book_isbn");
+                Long rating = (Long) doc.get("score");
+                userProfile.add(isbn);
+                
+                if (rating >= 4) {
+                    userLikes.add(isbn);
+                }
+            }
+            
+            for (String isbn : userLikes) {
+                System.out.println("Recommending for " + isbn);
+                List<String> recommendations = recommender.getRecommendationsISBN(isbn, 10);
+                int numCorrect = 0;
+                for(String rec : recommendations) {
+                    if(userLikes.contains(rec)) {
+                        numCorrect++;
+                    }
+                }
+                double precisionAtTen = (double)numCorrect / 10.0;
+                System.out.println("Precision @10: " + precisionAtTen);
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(DifferentRuns.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(DifferentRuns.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     public static void usingSVDbooksSeperate() {
         // Index some books
