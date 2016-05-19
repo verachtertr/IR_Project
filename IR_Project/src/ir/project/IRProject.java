@@ -15,7 +15,7 @@ public class IRProject {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        DifferentRuns.usingSVD();
+        DifferentRuns.usingSVDbooksSeperate();
     }
 
 

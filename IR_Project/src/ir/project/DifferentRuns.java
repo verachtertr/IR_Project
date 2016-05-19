@@ -30,7 +30,7 @@ import org.json.simple.parser.JSONParser;
  */
 public class DifferentRuns {
     
-    public static void usingSVD() {
+    public static void usingSVDbooksSeperate() {
         // Index some books
         Indexer indexer = new Indexer();
         indexer.index("./resources/books_IR_test.json");
