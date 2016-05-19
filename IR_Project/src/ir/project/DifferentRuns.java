@@ -30,7 +30,7 @@ import org.json.simple.parser.JSONParser;
  */
 public class DifferentRuns {
     
-    public static void usingSVD() {
+    public static void usingSVDbooksSeperate() {
         // Index some books
         Indexer indexer = new Indexer();
         indexer.index("./resources/books_IR_test.json");
@@ -66,11 +66,12 @@ public class DifferentRuns {
 
             while (ratingsIterator.hasNext()) {
                 x++;
+                System.out.println(x);
                 JSONObject doc = ratingsIterator.next();
-                if (x >= 10) {
+                /*if (x >= 10) {
                     userProfile.add((String)doc.get("book_isbn"));
                     break;
-                }
+                }*/
 
                 String isbn = (String) doc.get("book_isbn");
                 Long rating = (Long) doc.get("score");
