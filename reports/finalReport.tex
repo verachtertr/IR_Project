@@ -16,14 +16,14 @@ For this project, we implemented a \textit{content-based} recommendation system 
 
 \section{Algorithms implemented}
 
-To create our recommendation system, we first had to index a set of documents - the summaries and reviews of the books in our database. Next, we constructed tf-idf vectors for these books, which we could then compare to determine the similarity of different books. We also implemented dimensionality reduction. %TODO some more about dimensionality reduction
+To create our recommendation system, we first had to index a set of documents - the summaries and reviews of the books in our database. Next, we constructed tf-idf vectors for these books, which we could then compare to determine the similarity of different books. We also implemented dimensionality reduction. To perform a dimensionality reduction we had to use Singular Value Decomposition. We consulted the chapter in the book describing the dimensionality reduction.  
 
 \subsection{Indexing a collection of documents}
 
 \subsection{Vector space model}
 
 \subsection{Dimensionality reduction}
-To perform a dimensionality reduction we had to use Singular Value Decomposition. For this we consulted the chapter in the book describing the dimensionality reduction.  %TODO do I mention the slides are wrong?
+
 
 \section{Design choices}
 
@@ -37,8 +37,8 @@ We also have an additional dataset containing reviews of clothing, shoes,and jew
 
 \subsection{Lucene for indexing}
 
-To index the summaries and reviews of the books that we had scraped from Goodreads, we used the Lucene library. For indexing we used a English Analyzer to pre-process the data and perform stemming.
-%TODO Do we have to elaborate?
+To index the summaries and reviews of the books that we had scraped from Goodreads, we used the Lucene library. It has a lot of already implemented methods, making so that we could focus on the recommender part and most importantly the evaluation. For indexing we used a English Analyzer to pre-process the data and perform stemming.
+
 
 \subsection{Creating tf-idf vectors}
 
