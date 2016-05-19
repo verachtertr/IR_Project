@@ -22,6 +22,13 @@ public class TFIDFBookVector {
     private final String isbn;
     private final String author;
     
+    public TFIDFBookVector(int numTerms) {
+        this.vector = new OpenMapRealVector(numTerms);
+        this.title = "";
+        this.isbn ="";
+        this.author = "";
+    }
+    
     public TFIDFBookVector(int numTerms, String title, String isbn, String author) 
     {
         // Uses a sparse vector
@@ -58,6 +65,12 @@ public class TFIDFBookVector {
     public void editValue(int index, double value) 
     {
         vector.addToEntry(index, value);
+    }
+    
+    public void addVector(TFIDFBookVector other) {
+        RealVector otherVector = other.getVector();
+        
+        this.vector.add(otherVector);
     }
     
     public double cosineSimilarity(TFIDFBookVector other) {
