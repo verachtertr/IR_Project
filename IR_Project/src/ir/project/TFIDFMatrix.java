@@ -150,7 +150,7 @@ public class TFIDFMatrix {
         TFIDFBookVector vec1 = matrix[i1];
         TFIDFBookVector vec2 = matrix[i2];
         
-        double similarity = vec1.cosineSimilairty(vec2);
+        double similarity = vec1.cosineSimilarity(vec2);
         
         System.out.println(vec1.getTitle());
         System.out.println(vec2.getTitle());

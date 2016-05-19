@@ -6,7 +6,9 @@
 package ir.project;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.OpenMapRealVector;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SparseRealVector;
 
 /**
  *
@@ -22,8 +24,8 @@ public class TFIDFBookVector {
     
     public TFIDFBookVector(int numTerms, String title, String isbn, String author) 
     {
-        // TODO initialize as SparseRealVector?
-        this.vector = new ArrayRealVector(numTerms);
+        // Uses a sparse vector
+        this.vector = new OpenMapRealVector(numTerms);
         this.title = title;
         this.isbn = isbn;
         this.author = author;
@@ -54,7 +56,7 @@ public class TFIDFBookVector {
         vector.addToEntry(index, value);
     }
     
-    public double cosineSimilairty(TFIDFBookVector other) {
+    public double cosineSimilarity(TFIDFBookVector other) {
         RealVector otherVector = other.getVector();
         
         // get dot product
