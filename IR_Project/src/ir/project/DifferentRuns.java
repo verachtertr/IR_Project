@@ -242,7 +242,7 @@ public class DifferentRuns {
             List<String> testSet = userLikes.subList(numTraining, userLikes.size());
             
             // technique 1
-            List<String> recommendationsCompareTopK = recommender.getRecommendationsCompareTopK(userProfile, trainingSet, 10);
+            List<String> recommendationsCompareTopK = recommender.getRecommendationsCompareTopKISBN(userProfile, trainingSet, 10);
             int numCorrectCompareTopK = 0;
             for(String rec : recommendationsCompareTopK) {
                 if(testSet.contains(rec)) {
@@ -253,7 +253,7 @@ public class DifferentRuns {
             System.out.println("Precision @10 for method 'Compare top k': " + precisionAtTenCompareTopK);
             
             // technique 2
-            List<String> recommendationsAddBookVectors = recommender.getRecommendationsAddBookVectors(userProfile, trainingSet, 10);
+            List<String> recommendationsAddBookVectors = recommender.getRecommendationsAddBookVectorsISBN(userProfile, trainingSet, 10);
             int numCorrectAddBookVectors = 0;
             for (String rec: recommendationsAddBookVectors) {
                 if(testSet.contains(rec)) {
@@ -264,7 +264,7 @@ public class DifferentRuns {
             System.out.println("Precision @10 for method 'Add book vectors': " + precisionAddBookVectors);
             
             // technique 3
-            List<String> recommendationsAddSims = recommender.getRecommendationsAddCosineSimilarities(userProfile, testSet, 10);
+            List<String> recommendationsAddSims = recommender.getRecommendationsAddCosineSimilaritiesISBN(userProfile, testSet, 10);
             int numCorrectAddSims = 0;
             for (String rec: recommendationsAddSims) {
                 if(testSet.contains(rec)) {
