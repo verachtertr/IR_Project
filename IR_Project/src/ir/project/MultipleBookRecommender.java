@@ -83,10 +83,10 @@ public class MultipleBookRecommender {
                     HashMap<String, Double> similarities = new HashMap();
                     for (int j = 0; j < termMatrix.getNumDocs(); j++) {
                         TFIDFBookVector book = termMatrix.getTFIDFVector(j);
-                        if (!userProfile.contains(book.getISBN())) {
+                       // if (!userProfile.contains(book.getISBN())) {
                             Double sim = userBook.cosineSimilarity(book);
                             similarities.put(book.getISBN(), sim);
-                        }
+                       // }
                     }
                     
                     HashMap<String, Double> sortedSim = sortByValues(similarities);
@@ -141,7 +141,7 @@ public class MultipleBookRecommender {
                 Double cosineSimilarity = userBooks.cosineSimilarity(book);
                 cosineSimilarities.put(book.getTitle(), cosineSimilarity);
             }
-        }
+        }   
 
         HashMap<String, Double> sortedSimilarities = sortByValues(cosineSimilarities);
         List<String> recommendations = new ArrayList();
@@ -175,10 +175,10 @@ public class MultipleBookRecommender {
         
         for (int j = 0; j < termMatrix.getNumDocs(); j++) {
             TFIDFBookVector book = termMatrix.getTFIDFVector(j);
-            if (! userProfile.contains(book.getISBN())) {
+            //if (! userProfile.contains(book.getISBN())) {
                 Double cosineSimilarity = userBooks.cosineSimilarity(book);
                 cosineSimilarities.put(book.getISBN(), cosineSimilarity);
-            }
+           // }
         }
 
         HashMap<String, Double> sortedSimilarities = sortByValues(cosineSimilarities);
@@ -243,7 +243,7 @@ public class MultipleBookRecommender {
             if (userLikes.contains(userBook.getISBN())) {
                 for (int j = 0; j < termMatrix.getNumDocs(); j++) {
                     TFIDFBookVector book = termMatrix.getTFIDFVector(j);
-                    if (! userProfile.contains(book.getISBN())) {
+                    //if (! userProfile.contains(book.getISBN())) {
                         Double cosineSimilarity = userBook.cosineSimilarity(book);
                         
                         String isbn = book.getISBN();
@@ -253,7 +253,7 @@ public class MultipleBookRecommender {
                         } else {
                             cosineSimilarities.put(isbn, cosineSimilarity);
                         }
-                    }
+                    //}
                 }
             }
         }

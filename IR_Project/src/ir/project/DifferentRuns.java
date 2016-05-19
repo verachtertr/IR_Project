@@ -189,7 +189,7 @@ public class DifferentRuns {
             
             JSONParser parser = new JSONParser();
             
-            Object obj = parser.parse(new FileReader("./resources/users_test.json"));
+            Object obj = parser.parse(new FileReader("./resources/IR_test_user.json"));
             JSONArray array = (JSONArray) obj;
             Iterator<JSONObject> iterator = array.iterator();
 
@@ -281,7 +281,7 @@ public class DifferentRuns {
             
             JSONParser parser = new JSONParser();
             
-            Object obj = parser.parse(new FileReader("./resources/IR_test_user.json"));
+            Object obj = parser.parse(new FileReader("./resources/users_test.json"));
             JSONArray array = (JSONArray) obj;
             Iterator<JSONObject> iterator = array.iterator();
 
