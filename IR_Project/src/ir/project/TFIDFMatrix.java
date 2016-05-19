@@ -38,7 +38,7 @@ public class TFIDFMatrix {
         System.out.println("Created Term Map");
         createMatrix();
     }
-    
+        
     private void createTermMap() 
     {
         try {

@@ -26,6 +26,12 @@ baseurl = "https://www.goodreads.com"
 users = []
 books = []
 
+def containsBook(book):
+    for b in books:
+        if b.isbn == book.isbn:
+            return True
+    return False
+
 # Helper function to extract text from a node, also includes text in nested elements
 def extractText(node):
     parts = ([node.text] +
@@ -93,7 +99,7 @@ def parseBook(url, depth, maxdepth):
     text = abstract + " " + reviewText
 
     # Create book object, and push it into the books vector.
-    book = Book.Book(isbnr, t.strip(),a.strip(), abstract )
+    book = Book.Book(isbnr, t.strip(),a.strip(), text )
 
     print(book)
 
@@ -183,21 +189,24 @@ def parseReviews(url, user, depth, maxdepth):
 
 def readBooks(filename):
     with open(filename, 'r') as bookFile:
-        data = json.load(bookFile)
-        for book in data:
-            b = Book.Book(book["isbn"], book["title"], book["author"], book["text"])
-            books.append(b)
+        try:
+            data = json.load(bookFile)
+            for book in data:
+                b = Book.Book(book["isbn"], book["title"], book["author"], book["text"])
+                books.append(b)
+        except:
+            print("No books imported")
 
 
 if __name__ == '__main__':
     readBooks('data/books.json')
 
-    parseBook('https://www.goodreads.com/book/show/40445.Altered_Carbon',0,0)
+    #parseBook('https://www.goodreads.com/book/show/5907.The_Hobbit',0,0)
     try:
         #parseBook("https://www.goodreads.com/book/show/42615.War_of_the_Rats")
         #parseUser("https://www.goodreads.com/user/show/25962177-robin",0,1)	# parse starting for Robin, will skip Robin if error occurs
         parseUser("https://www.goodreads.com/user/show/25962177-robin",0,0) # parse Robin
-        parseUser("https://www.goodreads.com/user/show/23496067-elise-kuylen",0,0) # parse Elise
+        #parseUser("https://www.goodreads.com/user/show/23496067-elise-kuylen",0,0) # parse Elise
         parseUser("https://www.goodreads.com/user/show/55970026-ir-test",0,0) # parse Test User
 
 
@@ -211,7 +220,7 @@ if __name__ == '__main__':
     with open('data/users.json', 'w') as userfile:
         userfile.write("[")
         for user in users:
-            userJson = user.getJson()
+            userJson = user.getJson(books)
             userfile.write(userJson)
             userfile.write(",\n")
         userfile.write("]")
