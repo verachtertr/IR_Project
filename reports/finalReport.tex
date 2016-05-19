@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{hyperref}
 \author{Elise Kuylen \and Robin Verachtert}
 \title{Information Retrieval Project}
 \begin{document}
@@ -14,9 +15,7 @@ For this project, we implemented a \textit{content-based} recommendation system 
 
 \section{Algorithms implemented}
 
-To create our recommendation system, we first had to index a set of documents - the summaries and reviews of the books in our database. Next, we constructed TF-IDF vectors for these books, which we could then compare to determine the similarity of different books. Comparing documents on the basis of their TF-IDF vectors was done using the cosine similarity measure.
-
-We also implemented dimensionality reduction. %TODO some more about dimensionality reduction
+To create our recommendation system, we first had to index a set of documents - the summaries and reviews of the books in our database. Next, we constructed tf-idf vectors for these books, which we could then compare to determine the similarity of different books. We also implemented dimensionality reduction. To perform a dimensionality reduction we had to use Singular Value Decomposition. We consulted the chapter in the book describing the dimensionality reduction.  
 
 \section{Design choices}
 
@@ -25,9 +24,13 @@ We also implemented dimensionality reduction. %TODO some more about dimensionali
 To get a sufficiently large dataset of books and user reviews of those books, we scraped the Goodreads database. Goodreads is a social platform that allows users to rate and review the books they have read. \\
 We saved the information we got from Goodreads in JSON format, since this is easy to parse.
 
+We collected some different datasets, of different sizes, so we had a good variety to test the project on. There is a small dataset, only containing books of 2 users, this is the smallest set, which we used to quickly test newly implemented parts. Then there is a bookset of about 2000 books and one of about 10000 books. The last one we mostly used to test the speed of the indexer, because on our normal computers the similarity computation took too long.
+
+We also have an additional dataset containing reviews of clothing, shoes,and jewelry from Amazon \footnote{\url{http://jmcauley.ucsd.edu/data/amazon/}}. This is a larger dataset containing 250000 reviews. This dataset is exclusively used for testing the speed of the indexer.
+
 \subsection{Lucene for indexing}
 
-To index the summaries and reviews of the books that we had scraped from Goodreads, we used the Lucene library. %TODO some more about how we exactly indexed, English analyser for tokenization, ...
+To index the summaries and reviews of the books that we had scraped from Goodreads, we used the Lucene library. It has a lot of already implemented methods, making so that we could focus on the recommender part and most importantly the evaluation. For indexing we used a English Analyzer to pre-process the data and perform stemming.
 
 \subsection{Creating tf-idf vectors}
 
@@ -51,20 +54,34 @@ To make recommendations we used two different strategies:
 
 \subsection{Dimensionality reduction}
 
-%TODO explanation about how we did dimensionality reduction
+We decided to not implement this ourselves, because there are enough libraries supporting it.\\
+The SVD library we used is UJMP \footnote{\url{https://ujmp.org/}}. This also provided a sparse matrix implementation which is relevant to the total memory consumed. The implementation is very straightforward. You start with a matrix M x N and perform the SVD which provides 3 matrixes. $U$ (M x M), $\Sigma$ (M x N) and $V$ (N x N). Then you reduce the complexity by keeping the k first columns of $U$ and $V$ and making $\Sigma$ a k x k matrix with the k highest singular values on the diagonal. From this you can compute the term matrix again (in the reduced space) by doing:
+\[
+M_k = U_k * \Sigma_k * V_k^T
+\]
+When we want to match a query we have to also map this query vector to the reduced dimension space.
+\[
+q_k = \Sigma_k^{-1} * U_k^t * q
+\]
+This gives a vector of the same size as $q$, so we can use it the same as before to query against the term Matrix.
 
 \section{Evaluation results}
 
 \subsection{Indexing}
 
-To evaluate the quality of our indexing process, we timed how long it took for different sizes of datasets. We checked the time consumption for regular indexing as well as for indexing followed by dimensionality reduction. %TODO should we do space consumption?
-\subsubsection{Regular}
+To evaluate the quality of our indexing process, we timed how long it took for different sizes of datasets. We checked the time consumption for regular indexing as well as for indexing followed by dimensionality reduction. 
 
-%TODO fancy table with times for different sizes of dataset
+\begin{tabular} {l|l}
+Dataset & Time Consumption \\ \hline
+Clothing,Shoes,and Jewelry data set from Amazon (150MB) \footnote{\url{http://jmcauley.ucsd.edu/data/amazon/}} &  45388 ms \\ \hline
+10000 books dataset & 9332 ms \\ \hline
+2000 book dataset & 3615 ms \\ \hline
+180 books dataset & 2800 ms \\ \hline
 
-\subsubsection{With dimensionality reduction}
+\end{tabular}
+Note that these were times gotten on a low performance computer (less than 4GB RAM) so when running on a faster system these times would probably improve.
+It is clear that the increase in time is less than linear: 2000 entries to 10000 is only an increase in time of 3.the Amazon data set has 250000 entries, and the increase is only times 5.
 
-%TODO fancy table with times for different sizes of dataset
 
 \subsection{Recommendation}
 
