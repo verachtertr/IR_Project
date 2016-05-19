@@ -21,8 +21,9 @@ public class IRProject {
         //long time = TimeIndexer.timeSNAPIndexer("./resources/Books_5.json");
         //System.out.println("The operation took: " + time + " ms");
         //DifferentRuns.booksSeparate();
-        DifferentRuns.usingSVDbooksSeperate();
+        //DifferentRuns.usingSVDbooksSeperate();
         
         //DifferentRuns.booksMultiple();
+        DifferentRuns.usingSVDBooksMultiple();
     }
 }
